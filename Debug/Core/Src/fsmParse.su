@@ -1,0 +1,13 @@
+fsmParse.c:45:6:parseIDLE	16	static
+fsmParse.c:56:6:parseNode	24	static
+fsmParse.c:72:6:parseAddr	24	static
+fsmParse.c:88:6:parseSection	32	static
+fsmParse.c:112:6:parseCmdIDN	16	static
+fsmParse.c:120:6:parseCmdBIAS	40	static
+fsmParse.c:148:6:parseErrNode	16	static
+fsmParse.c:156:6:parseCmdKAT	16	static
+fsmParse.c:160:6:parseCmdMON	16	static
+fsmParse.c:164:6:parseSendToAddr	16	static
+fsmParse.c:172:6:parseExecute	16	static
+fsmParse.c:176:6:parseErrSection	16	static
+fsmParse.c:180:6:parseErrCmd	16	static

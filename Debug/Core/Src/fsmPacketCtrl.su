@@ -1,0 +1,4 @@
+fsmPacketCtrl.c:26:6:packetCtrlIDLE	24	static
+fsmPacketCtrl.c:39:6:packetCtrlSelect	16	static
+fsmPacketCtrl.c:45:6:packetCtrlWaitProcessed	16	static
+fsmPacketCtrl.c:55:6:packetCtrlNext	16	static
