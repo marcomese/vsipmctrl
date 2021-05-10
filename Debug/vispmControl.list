@@ -35,15 +35,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  15 .debug_ranges 000007b0  00000000  00000000  0002f2a0  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  00017082  00000000  00000000  0002fa50  2**0
+ 16 .debug_macro  00017088  00000000  00000000  0002fa50  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   0000bc4c  00000000  00000000  00046ad2  2**0
+ 17 .debug_line   0000bc4c  00000000  00000000  00046ad8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    0008690d  00000000  00000000  0005271e  2**0
+ 18 .debug_str    00086940  00000000  00000000  00052724  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000053  00000000  00000000  000d902b  2**0
+ 19 .comment      00000053  00000000  00000000  000d9064  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  0000361c  00000000  00000000  000d9080  2**2
+ 20 .debug_frame  0000361c  00000000  00000000  000d90b8  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -1700,7 +1700,7 @@ void packetCtrlNext(fsm_t* s){
  8001240:	08001175 	.word	0x08001175
 
 08001244 <parseIDLE>:
-#define SECTLEN 7
+#define NODELEN 5
 #define BIASLEN sizeof(BIASSECT)
 #define KATODELEN sizeof(KATODESECT)
 #define MONITORLEN sizeof(MONITORSECT)
@@ -1796,7 +1796,7 @@ void parseNode(fsm_t* s){
  80012d0:	681b      	ldr	r3, [r3, #0]
  80012d2:	60fb      	str	r3, [r7, #12]
 
-    if(!strncmp((const char*)pack,"NODE:",NODELEN)){
+    if(!strncmp((const char*)pack,NODESECT,NODELEN)){
  80012d4:	2205      	movs	r2, #5
  80012d6:	490f      	ldr	r1, [pc, #60]	; (8001314 <parseNode+0x74>)
  80012d8:	68f8      	ldr	r0, [r7, #12]
@@ -1808,14 +1808,14 @@ void parseNode(fsm_t* s){
  80012e4:	687b      	ldr	r3, [r7, #4]
  80012e6:	4a0c      	ldr	r2, [pc, #48]	; (8001318 <parseNode+0x78>)
  80012e8:	601a      	str	r2, [r3, #0]
-    }else if(!strncmp((const char*)pack,"*IDN?",IDNLEN)){
+    }else if(!strncmp((const char*)pack,IDNSECT,IDNLEN)){
         FSM_STATE(s) = parseCmdIDN;
     }else{
         FSM_STATE(s) = parseErrNode;
     }
 }
  80012ea:	e00e      	b.n	800130a <parseNode+0x6a>
-    }else if(!strncmp((const char*)pack,"*IDN?",IDNLEN)){
+    }else if(!strncmp((const char*)pack,IDNSECT,IDNLEN)){
  80012ec:	2205      	movs	r2, #5
  80012ee:	490b      	ldr	r1, [pc, #44]	; (800131c <parseNode+0x7c>)
  80012f0:	68f8      	ldr	r0, [r7, #12]
