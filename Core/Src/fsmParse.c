@@ -31,17 +31,17 @@ enum outputNames{command,
 #define DVCMD 6
 #define PULSERATECMD 7
 
-#define NODESECT (const char*) "NODE:"
-#define IDNSECT (const char*) "*IDN?"
-#define BIASSECT (const char*) "BIAS"
-#define KATODESECT (const char*) "KATODE"
-#define MONITORSECT (const char*) "MONITOR"
+#define NODESECT "NODE:"
+#define IDNSECT "*IDN?"
+#define BIASSECT "BIAS"
+#define KATODESECT "KATODE"
+#define MONITORSECT "MONITOR"
 
-#define IDNLEN 5
-#define NODELEN 5
-#define BIASLEN sizeof(BIASSECT)
-#define KATODELEN sizeof(KATODESECT)
-#define MONITORLEN sizeof(MONITORSECT)
+#define NODELEN sizeof(NODESECT)-1
+#define IDNLEN sizeof(IDNSECT)-1
+#define BIASLEN sizeof(BIASSECT)-1
+#define KATODELEN sizeof(KATODESECT)-1
+#define MONITORLEN sizeof(MONITORSECT)-1
 
 void parseIDLE(fsm_t* s){
     FSM_OUT(s,command,uint8_t) = 0;
@@ -61,9 +61,9 @@ void parseNode(fsm_t* s){
 
     uint8_t* pack = FSM_IN(s,currPacket,uint8_t*);
 
-    if(!strncmp((const char*)pack,NODESECT,NODELEN)){
+    if(strncmp((const char*)pack,NODESECT,NODELEN) == 0){
         FSM_STATE(s) = parseAddr;
-    }else if(!strncmp((const char*)pack,IDNSECT,IDNLEN)){
+    }else if(strncmp((const char*)pack,IDNSECT,IDNLEN) == 0){
         FSM_STATE(s) = parseCmdIDN;
     }else{
         FSM_STATE(s) = parseErrNode;
@@ -79,7 +79,7 @@ void parseAddr(fsm_t* s){
 
     const char* addrStr = (const char*)pack+NODELEN;
 
-    if(!strncmp(addrStr,ADDR,ADDRLEN-1)){
+    if(strncmp(addrStr,ADDR,ADDRLEN) == 0){
         FSM_STATE(s) = parseSection;
     }else{
         FSM_STATE(s) = parseSendToAddr;
@@ -93,17 +93,17 @@ void parseSection(fsm_t* s){
 
     uint8_t* pack = FSM_IN(s,currPacket,uint8_t*);
 
-    const char* sectStr = (const char*)pack+NODELEN+ADDRLEN;
+    const char* sectStr = (const char*)pack+NODELEN+ADDRLEN+1;
 
     char* endSect = strpbrk(sectStr,":");
 
     uint8_t secL = endSect-sectStr;
 
-    if(!strncmp(sectStr,BIASSECT,secL)){
+    if(secL > 0 && strncmp(sectStr,BIASSECT,secL) == 0){
         FSM_STATE(s) = parseCmdBIAS;
-    }else if(!strncmp(sectStr,KATODESECT,secL)){
+    }else if(secL > 0 && strncmp(sectStr,KATODESECT,secL) == 0){
         FSM_STATE(s) = parseCmdKAT;
-    }else if(!strncmp(sectStr,MONITORSECT,secL)){
+    }else if(secL > 0 && strncmp(sectStr,MONITORSECT,secL) == 0){
         FSM_STATE(s) = parseCmdMON;
     }else{
         FSM_STATE(s) = parseErrSection;
@@ -125,7 +125,7 @@ void parseCmdBIAS(fsm_t* s){
 ////////// DA SPOSTARE!!!
     uint8_t* pack = FSM_IN(s,currPacket,uint8_t*);
 
-    const char* biasArg = (const char*)pack+NODELEN+ADDRLEN+BIASLEN+1;
+    const char* biasArg = (const char*)pack+NODELEN+ADDRLEN+BIASLEN+2;
 
     char* argEnd = strpbrk(biasArg,":;");
 

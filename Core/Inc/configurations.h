@@ -9,7 +9,7 @@
 #define INC_CONFIGURATIONS_H_
 
 #define ADDR "04.21.00"
-#define ADDRLEN sizeof(ADDR)
+#define ADDRLEN sizeof(ADDR)-1
 
 #define MAXPACKETSIZE 40
 #define PACKETSINBUF 1000
