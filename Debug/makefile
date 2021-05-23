@@ -35,34 +35,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := vsipmF3
+BUILD_ARTIFACT_NAME := vispmControl
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX := 
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME).$(BUILD_ARTIFACT_EXTENSION)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-vsipmF3.elf \
+vispmControl.elf \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-vsipmF3.list \
+vispmControl.list \
 
 OBJCOPY_BIN += \
-vsipmF3.bin \
+vispmControl.bin \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: vsipmF3.elf secondary-outputs
+main-build: vispmControl.elf secondary-outputs
 
 # Tool invocations
-vsipmF3.elf: $(OBJS) $(USER_OBJS) C:\Users\mames\Documents\progetti_stm32\vsipmF3\STM32F303VCTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "vsipmF3.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\mames\Documents\progetti_stm32\vsipmF3\STM32F303VCTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="vsipmF3.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
+vispmControl.elf: $(OBJS) $(USER_OBJS) C:\Users\mames\Documents\progetti_stm32\vispmControl\STM32F303VCTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "vispmControl.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\mames\Documents\progetti_stm32\vispmControl\STM32F303VCTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="vispmControl.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -71,13 +71,13 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-vsipmF3.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "vsipmF3.list"
+vispmControl.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "vispmControl.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-vsipmF3.bin: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "vsipmF3.bin"
+vispmControl.bin: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "vispmControl.bin"
 	@echo 'Finished building: $@'
 	@echo ' '
 
