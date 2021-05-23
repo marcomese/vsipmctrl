@@ -43,8 +43,16 @@ enum outputNames{command,
 #define KATODELEN sizeof(KATODESECT)-1
 #define MONITORLEN sizeof(MONITORSECT)-1
 
+#define VOLTCMDSTR "VOLT"
+#define MAXCMDSTR "MAX"
+#define STATECMDSTR "STATE"
+
+#define VOLTLEN sizeof(VOLTCMD)
+#define MAXLEN sizeof(MAXCMD)
+#define STATELEN sizeof(STATECMD)
+
 void parseIDLE(fsm_t* s){
-    FSM_OUT(s,command,uint8_t) = 0;
+    FSM_OUT(s,command,uint8_t) = NOOP;
     FSM_OUT(s,busy,uint8_t) = 0;
     FSM_OUT(s,packetProcessed,uint8_t) = 0;
 
@@ -55,7 +63,7 @@ void parseIDLE(fsm_t* s){
 }
 
 void parseNode(fsm_t* s){
-    FSM_OUT(s,command,uint8_t) = 0;
+    FSM_OUT(s,command,uint8_t) = NOOP;
     FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 0;
 
@@ -71,7 +79,7 @@ void parseNode(fsm_t* s){
 }
 
 void parseAddr(fsm_t* s){
-    FSM_OUT(s,command,uint8_t) = 0;
+    FSM_OUT(s,command,uint8_t) = NOOP;
     FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 0;
 
@@ -87,7 +95,7 @@ void parseAddr(fsm_t* s){
 }
 
 void parseSection(fsm_t* s){
-    FSM_OUT(s,command,uint8_t) = 0;
+    FSM_OUT(s,command,uint8_t) = NOOP;
     FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 0;
 
@@ -119,39 +127,28 @@ void parseCmdIDN(fsm_t* s){
 }
 
 void parseCmdBIAS(fsm_t* s){
-    FSM_OUT(s,command,uint8_t) = VOLTCMD;
+    FSM_OUT(s,command,uint8_t) = NOOP;
     FSM_OUT(s,busy,uint8_t) = 1;
-    FSM_OUT(s,packetProcessed,uint8_t) = 1;
-////////// DA SPOSTARE!!!
+    FSM_OUT(s,packetProcessed,uint8_t) = 0;
+
     uint8_t* pack = FSM_IN(s,currPacket,uint8_t*);
 
     const char* biasArg = (const char*)pack+NODELEN+ADDRLEN+BIASLEN+2;
 
-    char* argEnd = strpbrk(biasArg,":;");
+    char* argEnd = strpbrk(biasArg," ?");
 
     size_t argL = (argEnd > 0) ? argEnd-biasArg : sizeof(argEnd)-1;
-/*
- * Se il pacchetto non termina con ; o : vuol dire che è l'ultimo (dato che i caratteri terminatori vengono rimossi per evitare loop)
- * quindi in questo caso argL è semplicemente sizeof(argEnd)
- */
 
-    FSM_OUT(s,outVoltagePointer,float*) = FSM_INP(s,biasVoltage);
+    if(strncmp(biasArg,VOLTCMDSTR,argL) == 0){
+        FSM_STATE(s) = parseVoltageCmd;
+    }else if(strncmp(biasArg,MAXCMDSTR,argL) == 0){
+        FSM_STATE(s) = parseMaxCmd;
+    }else if(strncmp(biasArg,STATECMDSTR,argL) == 0){
+        FSM_STATE(s) = parseStateCmd;
+    }else{
+        FSM_STATE(s) = parseErrCmd;
+    }
 
-    char* argOut = FSM_OUTP(s,argument);
-    memset(argOut,0,CMDARGSIZE);
-
-    strncpy(argOut,biasArg,argL);
-
-    FSM_STATE(s) = parseIDLE;
-
-}
-
-void parseErrNode(fsm_t* s){
-    FSM_OUT(s,command,uint8_t) = NOOP;
-    FSM_OUT(s,busy,uint8_t) = 1;
-    FSM_OUT(s,packetProcessed,uint8_t) = 1;
-
-    FSM_STATE(s) = parseIDLE;
 }
 
 void parseCmdKAT(fsm_t* s){
@@ -170,14 +167,62 @@ void parseSendToAddr(fsm_t* s){
     FSM_STATE(s) = parseIDLE;
 }
 
+void parseVoltageCmd(fsm_t* s){
+    FSM_OUT(s,command,uint8_t) = VOLTCMD;
+    FSM_OUT(s,busy,uint8_t) = 1;
+    FSM_OUT(s,packetProcessed,uint8_t) = 1;
+
+    FSM_OUT(s,outVoltagePointer,float*) = FSM_INP(s,biasVoltage);
+
+    char* argOut = FSM_OUTP(s,argument);
+    memset(argOut,0,CMDARGSIZE);
+
+    uint8_t* pack = FSM_IN(s,currPacket,uint8_t*);
+
+    const char* biasArg = (const char*)pack+NODELEN+ADDRLEN+BIASLEN+2;
+
+    char* argEnd = strpbrk(biasArg,":;");
+
+    size_t argL = (argEnd > 0) ? argEnd-biasArg : sizeof(argEnd)-1;
+
+    strncpy(argOut,biasArg,argL);
+
+    FSM_STATE(s) = parseIDLE;
+
+}
+
+void parseMaxCmd(fsm_t* s){
+    return;
+}
+
+void parseStateCmd(fsm_t* s){
+    return;
+}
+
 void parseExecute(fsm_t* s){
     return;
 }
 
+void parseErrNode(fsm_t* s){
+    FSM_OUT(s,command,uint8_t) = NOOP;
+    FSM_OUT(s,busy,uint8_t) = 1;
+    FSM_OUT(s,packetProcessed,uint8_t) = 1;
+
+    FSM_STATE(s) = parseIDLE;
+}
+
 void parseErrSection(fsm_t* s){
-    return;
+    FSM_OUT(s,command,uint8_t) = NOOP;
+    FSM_OUT(s,busy,uint8_t) = 1;
+    FSM_OUT(s,packetProcessed,uint8_t) = 1;
+
+    FSM_STATE(s) = parseIDLE;
 }
 
 void parseErrCmd(fsm_t* s){
-    return;
+    FSM_OUT(s,command,uint8_t) = NOOP;
+    FSM_OUT(s,busy,uint8_t) = 1;
+    FSM_OUT(s,packetProcessed,uint8_t) = 1;
+
+    FSM_STATE(s) = parseIDLE;
 }
