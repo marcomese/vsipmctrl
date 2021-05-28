@@ -41,9 +41,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
-ADC_HandleTypeDef hadc3;
 DMA_HandleTypeDef hdma_adc1;
-DMA_HandleTypeDef hdma_adc3;
 
 DAC_HandleTypeDef hdac;
 
@@ -55,6 +53,10 @@ UART_HandleTypeDef huart2;
 uint8_t vSection = BIAS;
 uint32_t vDACChannels[2] = {DAC1_CHANNEL_1,
                             DAC1_CHANNEL_2};
+
+uint32_t ADCBuf[2];
+uint32_t biasReadVal;
+uint32_t katodeReadVal;
 
 /*
  * Variabili per il BIAS
@@ -129,7 +131,6 @@ static void MX_ADC1_Init(void);
 static void MX_DAC_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
-static void MX_ADC3_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -145,12 +146,12 @@ static void MX_ADC3_Init(void);
   */
 int main(void)
 {
-    /* USER CODE BEGIN 1 */
+  /* USER CODE BEGIN 1 */
 
     fsm_t parseFSM;
     fsm_t packetCtrlFSM;
 
-    /* USER CODE END 1 */
+  /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -160,6 +161,10 @@ int main(void)
   /* USER CODE BEGIN Init */
   memset(dataBuffer,0,BUFSIZE);
   memset(uartResp,0,UARTRESSIZE);
+
+  ADCBuf[0] = 0;
+  ADCBuf[1] = 0;
+
   currPacket = packetToProcess[0];
 
   /* USER CODE END Init */
@@ -178,7 +183,6 @@ int main(void)
   MX_DAC_Init();
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
-  MX_ADC3_Init();
   /* USER CODE BEGIN 2 */
 
   HAL_UART_Receive_IT(&huart1, dataBuffer, 1);
@@ -193,6 +197,8 @@ int main(void)
 
   HAL_DAC_Start(&hdac, DAC1_CHANNEL_1);
   HAL_DAC_Start(&hdac, DAC1_CHANNEL_2);
+
+  HAL_ADC_Start_DMA(&hadc1, ADCBuf, 2);
 
   /* USER CODE END 2 */
 
@@ -251,11 +257,10 @@ void SystemClock_Config(void)
     Error_Handler();
   }
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_USART2
-                              |RCC_PERIPHCLK_ADC12|RCC_PERIPHCLK_ADC34;
+                              |RCC_PERIPHCLK_ADC12;
   PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
   PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_SYSCLK;
   PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
-  PeriphClkInit.Adc34ClockSelection = RCC_ADC34PLLCLK_DIV1;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
@@ -322,69 +327,6 @@ static void MX_ADC1_Init(void)
   /* USER CODE BEGIN ADC1_Init 2 */
 
   /* USER CODE END ADC1_Init 2 */
-
-}
-
-/**
-  * @brief ADC3 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_ADC3_Init(void)
-{
-
-  /* USER CODE BEGIN ADC3_Init 0 */
-
-  /* USER CODE END ADC3_Init 0 */
-
-  ADC_MultiModeTypeDef multimode = {0};
-  ADC_ChannelConfTypeDef sConfig = {0};
-
-  /* USER CODE BEGIN ADC3_Init 1 */
-
-  /* USER CODE END ADC3_Init 1 */
-  /** Common config
-  */
-  hadc3.Instance = ADC3;
-  hadc3.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
-  hadc3.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc3.Init.ScanConvMode = ADC_SCAN_DISABLE;
-  hadc3.Init.ContinuousConvMode = DISABLE;
-  hadc3.Init.DiscontinuousConvMode = DISABLE;
-  hadc3.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-  hadc3.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-  hadc3.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc3.Init.NbrOfConversion = 1;
-  hadc3.Init.DMAContinuousRequests = DISABLE;
-  hadc3.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
-  hadc3.Init.LowPowerAutoWait = DISABLE;
-  hadc3.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
-  if (HAL_ADC_Init(&hadc3) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure the ADC multi-mode
-  */
-  multimode.Mode = ADC_MODE_INDEPENDENT;
-  if (HAL_ADCEx_MultiModeConfigChannel(&hadc3, &multimode) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure Regular Channel
-  */
-  sConfig.Channel = ADC_CHANNEL_1;
-  sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SingleDiff = ADC_SINGLE_ENDED;
-  sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
-  sConfig.OffsetNumber = ADC_OFFSET_NONE;
-  sConfig.Offset = 0;
-  if (HAL_ADC_ConfigChannel(&hadc3, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN ADC3_Init 2 */
-
-  /* USER CODE END ADC3_Init 2 */
 
 }
 
@@ -510,15 +452,11 @@ static void MX_DMA_Init(void)
 
   /* DMA controller clock enable */
   __HAL_RCC_DMA1_CLK_ENABLE();
-  __HAL_RCC_DMA2_CLK_ENABLE();
 
   /* DMA interrupt init */
   /* DMA1_Channel1_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
-  /* DMA2_Channel5_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA2_Channel5_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA2_Channel5_IRQn);
 
 }
 
@@ -533,7 +471,6 @@ static void MX_GPIO_Init(void)
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
 
 }
 

@@ -172,7 +172,6 @@ void parseCmdBIAS(fsm_t* s){
     const char* biasArg = (const char*)pack+NODELEN+ADDRLEN+BIASLEN+2;
 
     FSM_STATE(s) = selectCmd(biasArg);
-
 }
 
 void parseCmdKAT(fsm_t* s){
@@ -186,7 +185,6 @@ void parseCmdKAT(fsm_t* s){
     const char* katArg = (const char*)pack+NODELEN+ADDRLEN+KATODELEN+2;
 
     FSM_STATE(s) = selectCmd(katArg);
-
 }
 
 void parseCmdMON(fsm_t* s){
@@ -226,7 +224,6 @@ void parseVoltageCmd(fsm_t* s){
     strncpy(argOut,voltArg,argL);
 
     FSM_STATE(s) = parseIDLE;
-
 }
 
 void parseMaxCmd(fsm_t* s){

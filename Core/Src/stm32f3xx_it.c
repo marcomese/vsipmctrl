@@ -51,6 +51,11 @@ extern uint8_t dataBuffer[BUFSIZE];
 extern uint8_t* dataPointer;
 extern uint8_t* endPacketPointer;
 
+extern uint32_t ADCBuf[2];
+
+extern uint32_t biasReadVal;
+extern uint32_t katodeReadVal;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -65,9 +70,7 @@ extern uint8_t* endPacketPointer;
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_adc1;
-extern DMA_HandleTypeDef hdma_adc3;
 extern ADC_HandleTypeDef hadc1;
-extern ADC_HandleTypeDef hadc3;
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;
 /* USER CODE BEGIN EV */
@@ -293,35 +296,15 @@ void USART2_IRQHandler(void)
   /* USER CODE END USART2_IRQn 1 */
 }
 
-/**
-  * @brief This function handles ADC3 global interrupt.
-  */
-void ADC3_IRQHandler(void)
-{
-  /* USER CODE BEGIN ADC3_IRQn 0 */
-
-  /* USER CODE END ADC3_IRQn 0 */
-  HAL_ADC_IRQHandler(&hadc3);
-  /* USER CODE BEGIN ADC3_IRQn 1 */
-
-  /* USER CODE END ADC3_IRQn 1 */
-}
-
-/**
-  * @brief This function handles DMA2 channel5 global interrupt.
-  */
-void DMA2_Channel5_IRQHandler(void)
-{
-  /* USER CODE BEGIN DMA2_Channel5_IRQn 0 */
-
-  /* USER CODE END DMA2_Channel5_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_adc3);
-  /* USER CODE BEGIN DMA2_Channel5_IRQn 1 */
-
-  /* USER CODE END DMA2_Channel5_IRQn 1 */
-}
-
 /* USER CODE BEGIN 1 */
+HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
+{
+  UNUSED(hadc);
 
+  if(hadc->Instance == ADC1){
+      biasReadVal = ADCBuf[BIAS];
+      katodeReadVal = ADCBuf[KATODE];
+  }
+}
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
