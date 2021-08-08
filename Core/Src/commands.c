@@ -27,6 +27,7 @@ extern float biasReadVal;
 extern float katodeReadVal;
 
 extern float* outVoltagePointer;
+extern float* readVoltagePointer;
 
 extern uint8_t vSection;
 extern uint32_t vDACChannels[2];
@@ -56,6 +57,12 @@ void voltageCMD(void){
         memset(uartResp,0,UARTRESSIZE);
 
         snprintf((char*)uartResp,UARTRESSIZE,"%.2f\r\n",outVal);
+
+        HAL_UART_Transmit_IT(&huart1,uartResp,UARTRESSIZE);
+    }else if(argument[0] == '?'){
+        memset(uartResp,0,UARTRESSIZE);
+
+        snprintf((char*)uartResp,UARTRESSIZE,"%.2f\r\n",*readVoltagePointer);
 
         HAL_UART_Transmit_IT(&huart1,uartResp,UARTRESSIZE);
     }else{

@@ -91,6 +91,7 @@ uint8_t busy = 0;
 uint8_t packetProcessed = 0;
 char argument[CMDARGSIZE];
 float* outVoltagePointer = NULL;
+float* readVoltagePointer = NULL;
 
 /*
  * Variabili per packetCtrlFSM
@@ -105,13 +106,16 @@ void* parseFsmInputs[] = {&currPacket,
                           &biasVoltage,
                           &biasMaxVoltage,
                           &katodeVoltage,
-                          &katodeMaxVoltage};
+                          &katodeMaxVoltage,
+                          &biasReadVal,
+                          &katodeReadVal};
 
 void* parseFsmOutputs[] = {&command,
                            &busy,
                            &argument,
                            &packetProcessed,
                            &outVoltagePointer,
+                           &readVoltagePointer,
                            &vSection};
 
 void* packetCtrlInputs[] = {&endPacketPointer,

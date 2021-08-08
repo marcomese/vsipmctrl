@@ -1,4 +1,4 @@
-commands.c:31:6:noop	4	static
-commands.c:33:6:idnCMD	8	static
-commands.c:42:6:voltageCMD	32	static
-commands.c:68:6:execute	8	static
+commands.c:35:6:noop	4	static
+commands.c:37:6:idnCMD	8	static
+commands.c:46:6:voltageCMD	32	static
+commands.c:78:6:execute	8	static

@@ -14,13 +14,16 @@ enum inputNames{currPacket,
                 biasVoltage,
                 biasMaxVoltage,
                 katodeVoltage,
-                katodeMaxVoltage};
+                katodeMaxVoltage,
+                biasReadVal,
+                katodeReadVal};
 
 enum outputNames{command,
                  busy,
                  argument,
                  packetProcessed,
                  outVoltagePointer,
+                 readVoltagePointer,
                  vSection};
 
 #define NOOP 0
@@ -60,26 +63,26 @@ state_function_t selectCmd(const char* arg){
     size_t argL = (argEnd > 0) ? argEnd-arg : sizeof(argEnd)-1;
 
     if(strncmp(arg,VOLTCMDSTR,argL) == 0){
-        if(*argEnd == ' ')
+//        if(*argEnd == ' ')
             return parseVoltageCmd;
-        else if(*argEnd == '?')
-            return parseVoltageQuery;
-        else
-            return parseErrCmd;
+//        else if(*argEnd == '?')
+//            return parseVoltageQuery;
+//        else
+//            return parseErrCmd;
     }else if(strncmp(arg,MAXCMDSTR,argL) == 0){
-        if(*argEnd == ' ')
+//        if(*argEnd == ' ')
             return parseMaxCmd;
-        else if(*argEnd == '?')
-            return parseMaxQuery;
-        else
-            return parseErrCmd;
+//        else if(*argEnd == '?')
+//            return parseMaxQuery;
+//        else
+//            return parseErrCmd;
     }else if(strncmp(arg,STATECMDSTR,argL) == 0){
-        if(*argEnd == ' ')
+//        if(*argEnd == ' ')
             return parseStateCmd;
-        else if(*argEnd == '?')
-            return parseStateQuery;
-        else
-            return parseErrCmd;
+//        else if(*argEnd == '?')
+//            return parseStateQuery;
+//        else
+//            return parseErrCmd;
     }
     return parseErrCmd;
 }
@@ -210,12 +213,15 @@ void parseVoltageCmd(fsm_t* s){
     FSM_OUT(s,outVoltagePointer,float*) = (vSect == BIAS) ?
                                            FSM_INP(s,biasVoltage) : FSM_INP(s,katodeVoltage);
 
+    FSM_OUT(s,readVoltagePointer,float*) = (vSect == BIAS) ?
+                                           FSM_INP(s,biasReadVal) : FSM_INP(s,katodeReadVal);
+
     char* argOut = FSM_OUTP(s,argument);
     memset(argOut,0,CMDARGSIZE);
 
     uint8_t* pack = FSM_IN(s,currPacket,uint8_t*);
 
-    const char* voltArg = (const char*)pack+NODELEN+ADDRLEN+sectLen+VOLTLEN+3;
+    const char* voltArg = (const char*)pack+NODELEN+ADDRLEN+sectLen+VOLTLEN+2;
 
     char* argEnd = strpbrk(voltArg,":;\n\r");
 
@@ -234,17 +240,17 @@ void parseStateCmd(fsm_t* s){
     return;
 }
 
-void parseVoltageQuery(fsm_t* s){
-    FSM_OUT(s,command,uint8_t) = VOLTCMD;
-    FSM_OUT(s,busy,uint8_t) = 1;
-    FSM_OUT(s,packetProcessed,uint8_t) = 1;
-
-    uint8_t vSect = FSM_OUT(s,vSection,uint8_t);
-    uint8_t sectLen = BIASLEN*(1-vSect)+KATODELEN*vSect;
-
-    FSM_OUT(s,outVoltagePointer,float*) = (vSect == BIAS) ?
-                                           FSM_INP(s,biasVoltage) : FSM_INP(s,katodeVoltage);
-}
+//void parseVoltageQuery(fsm_t* s){
+//    FSM_OUT(s,command,uint8_t) = VOLTCMD;
+//    FSM_OUT(s,busy,uint8_t) = 1;
+//    FSM_OUT(s,packetProcessed,uint8_t) = 1;
+//
+//    uint8_t vSect = FSM_OUT(s,vSection,uint8_t);
+//    uint8_t sectLen = BIASLEN*(1-vSect)+KATODELEN*vSect;
+//
+//    FSM_OUT(s,outVoltagePointer,float*) = (vSect == BIAS) ?
+//                                           FSM_INP(s,biasVoltage) : FSM_INP(s,katodeVoltage);
+//}
 
 void parseMaxQuery(fsm_t* s){
     return;
