@@ -54,10 +54,9 @@ void packetCtrlWaitProcessed(fsm_t* s){
 
 void packetCtrlNext(fsm_t* s){
     FSM_OUT(s,process,uint8_t) = 0;
-    uint8_t pidx = FSM_OUT(s,packetIndex,uint8_t)+1;
+    FSM_OUT(s,packetIndex,uint8_t) = FSM_OUT(s,packetIndex,uint8_t)+1;
 
-    if(pidx < FSM_IN(s,packetsNum,uint8_t)){
-        FSM_OUT(s,packetIndex,uint8_t) = pidx;
+    if(FSM_OUT(s,packetIndex,uint8_t) < FSM_IN(s,packetsNum,uint8_t)){
         FSM_STATE(s) = packetCtrlSelect;
     }else{
         uint8_t* lastCh = FSM_IN(s,endPacketPointer,uint8_t*)-1;

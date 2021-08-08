@@ -28,6 +28,7 @@ extern float katodeReadVal;
 
 extern float* outVoltagePointer;
 extern float* readVoltagePointer;
+extern float* maxVoltagePointer;
 
 extern uint8_t vSection;
 extern uint32_t vDACChannels[2];
@@ -48,17 +49,25 @@ void voltageCMD(void){
     float outVal = strtof(argument,&err);
 
     if(err != argument){
-        *outVoltagePointer = outVal;
+        if(outVal <= *maxVoltagePointer){
+            *outVoltagePointer = outVal;
 
-        float voltDACVal = 4096*outVal/2.9;
+            float voltDACVal = 4096*outVal/2.9;
 
-        HAL_DAC_SetValue(&hdac, vDACChannels[vSection], DAC_ALIGN_12B_R, voltDACVal);
+            HAL_DAC_SetValue(&hdac, vDACChannels[vSection], DAC_ALIGN_12B_R, voltDACVal);
 
-        memset(uartResp,0,UARTRESSIZE);
+            memset(uartResp,0,UARTRESSIZE);
 
-        snprintf((char*)uartResp,UARTRESSIZE,"%.2f\r\n",outVal);
+            snprintf((char*)uartResp,UARTRESSIZE,"%.2f\r\n",outVal);
 
-        HAL_UART_Transmit_IT(&huart1,uartResp,UARTRESSIZE);
+            HAL_UART_Transmit_IT(&huart1,uartResp,UARTRESSIZE);
+        }else{
+            memset(uartResp,0,UARTRESSIZE);
+
+            snprintf((char*)uartResp,UARTRESSIZE,"Vmax = %.2f\r\n",*maxVoltagePointer);
+
+            HAL_UART_Transmit_IT(&huart1, uartResp, UARTRESSIZE);
+        }
     }else if(argument[0] == '?'){
         memset(uartResp,0,UARTRESSIZE);
 

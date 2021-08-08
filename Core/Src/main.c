@@ -62,13 +62,13 @@ float katodeReadVal;
  * Variabili per il BIAS
  */
 float biasVoltage = 0.0;
-float biasMaxVoltage = 0.0;
+float biasMaxVoltage = 1.5;
 
 /*
  * Variabili per il CATODO
  */
 float katodeVoltage = 0.0;
-float katodeMaxVoltage = 0.0;
+float katodeMaxVoltage = 2.0;
 
 /*
  * Variabili per la UART a "sinistra"
@@ -92,6 +92,7 @@ uint8_t packetProcessed = 0;
 char argument[CMDARGSIZE];
 float* outVoltagePointer = NULL;
 float* readVoltagePointer = NULL;
+float* maxVoltagePointer = NULL;
 
 /*
  * Variabili per packetCtrlFSM
@@ -116,6 +117,7 @@ void* parseFsmOutputs[] = {&command,
                            &packetProcessed,
                            &outVoltagePointer,
                            &readVoltagePointer,
+                           &maxVoltagePointer,
                            &vSection};
 
 void* packetCtrlInputs[] = {&endPacketPointer,

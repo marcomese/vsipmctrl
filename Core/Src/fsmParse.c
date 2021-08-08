@@ -24,6 +24,7 @@ enum outputNames{command,
                  packetProcessed,
                  outVoltagePointer,
                  readVoltagePointer,
+                 maxVoltagePointer,
                  vSection};
 
 #define NOOP 0
@@ -215,6 +216,10 @@ void parseVoltageCmd(fsm_t* s){
 
     FSM_OUT(s,readVoltagePointer,float*) = (vSect == BIAS) ?
                                            FSM_INP(s,biasReadVal) : FSM_INP(s,katodeReadVal);
+
+    FSM_OUT(s,maxVoltagePointer,float*) = (vSect == BIAS) ?
+                                           FSM_INP(s,biasMaxVoltage) : FSM_INP(s,katodeMaxVoltage);
+
 
     char* argOut = FSM_OUTP(s,argument);
     memset(argOut,0,CMDARGSIZE);
