@@ -53,8 +53,8 @@ extern uint8_t* endPacketPointer;
 
 extern uint32_t ADCBuf[2];
 
-extern uint32_t biasReadVal;
-extern uint32_t katodeReadVal;
+extern float biasReadVal;
+extern float katodeReadVal;
 
 /* USER CODE END PV */
 
@@ -70,7 +70,6 @@ extern uint32_t katodeReadVal;
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_adc1;
-extern ADC_HandleTypeDef hadc1;
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;
 /* USER CODE BEGIN EV */
@@ -230,20 +229,6 @@ void DMA1_Channel1_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles ADC1 and ADC2 interrupts.
-  */
-void ADC1_2_IRQHandler(void)
-{
-  /* USER CODE BEGIN ADC1_2_IRQn 0 */
-
-  /* USER CODE END ADC1_2_IRQn 0 */
-  HAL_ADC_IRQHandler(&hadc1);
-  /* USER CODE BEGIN ADC1_2_IRQn 1 */
-
-  /* USER CODE END ADC1_2_IRQn 1 */
-}
-
-/**
   * @brief This function handles USART1 global interrupt / USART1 wake-up interrupt through EXTI line 25.
   */
 void USART1_IRQHandler(void)
@@ -297,13 +282,13 @@ void USART2_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
-HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
   UNUSED(hadc);
 
   if(hadc->Instance == ADC1){
-      biasReadVal = ADCBuf[BIAS];
-      katodeReadVal = ADCBuf[KATODE];
+      biasReadVal = 3.3*ADCBuf[BIAS]/4095;
+      katodeReadVal = 3.3*ADCBuf[KATODE]/4095;
   }
 }
 /* USER CODE END 1 */
