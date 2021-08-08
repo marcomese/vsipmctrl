@@ -23,6 +23,9 @@ extern float biasMaxVoltage;
 extern float katodeVoltage;
 extern float katodeMaxVoltage;
 
+extern float biasReadVal;
+extern float katodeReadVal;
+
 extern float* outVoltagePointer;
 
 extern uint8_t vSection;

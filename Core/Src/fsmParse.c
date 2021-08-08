@@ -235,7 +235,15 @@ void parseStateCmd(fsm_t* s){
 }
 
 void parseVoltageQuery(fsm_t* s){
-    return;
+    FSM_OUT(s,command,uint8_t) = VOLTCMD;
+    FSM_OUT(s,busy,uint8_t) = 1;
+    FSM_OUT(s,packetProcessed,uint8_t) = 1;
+
+    uint8_t vSect = FSM_OUT(s,vSection,uint8_t);
+    uint8_t sectLen = BIASLEN*(1-vSect)+KATODELEN*vSect;
+
+    FSM_OUT(s,outVoltagePointer,float*) = (vSect == BIAS) ?
+                                           FSM_INP(s,biasVoltage) : FSM_INP(s,katodeVoltage);
 }
 
 void parseMaxQuery(fsm_t* s){
