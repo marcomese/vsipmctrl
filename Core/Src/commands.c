@@ -79,9 +79,34 @@ void voltageCMD(void){
     }
 }
 
+void maxCMD(void){
+    char* err;
+    float maxVal = strtof(argument,&err);
+
+    if(err != argument){
+        *maxVoltagePointer = maxVal;
+
+        memset(uartResp,0,UARTRESSIZE);
+
+        snprintf((char*)uartResp,UARTRESSIZE,"%.2f\r\n",maxVal);
+
+        HAL_UART_Transmit_IT(&huart1,uartResp,UARTRESSIZE);
+
+    }else if(argument[0] == '?'){
+        memset(uartResp,0,UARTRESSIZE);
+
+        snprintf((char*)uartResp,UARTRESSIZE,"%.2f\r\n",*maxVoltagePointer);
+
+        HAL_UART_Transmit_IT(&huart1,uartResp,UARTRESSIZE);
+    }else{
+        HAL_UART_Transmit_IT(&huart1, (uint8_t*)"ERR: NaN     \r\n", UARTRESSIZE);
+    }
+}
+
 const commands_t commandExecute[] = {(commands_t)noop,
                                      (commands_t)idnCMD,
-                                     (commands_t)voltageCMD};
+                                     (commands_t)voltageCMD,
+                                     (commands_t)maxCMD};
 
 
 void execute(void){

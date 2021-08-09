@@ -21,4 +21,7 @@
 #define UARTRESSIZE 15
 #define CMDARGSIZE 15
 
+#define MAXBIAS 1.5
+#define MAXKATODE 2.0
+
 #endif /* INC_CONFIGURATIONS_H_ */

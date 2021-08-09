@@ -22,6 +22,8 @@ void idnCMD(void);
 
 void voltageCMD(void);
 
+void maxCMD(void);
+
 typedef void (*commands_t)(void);
 
 extern const commands_t commandExecute[];

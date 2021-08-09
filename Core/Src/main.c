@@ -62,13 +62,13 @@ float katodeReadVal;
  * Variabili per il BIAS
  */
 float biasVoltage = 0.0;
-float biasMaxVoltage = 1.5;
+float biasMaxVoltage = MAXBIAS;
 
 /*
  * Variabili per il CATODO
  */
 float katodeVoltage = 0.0;
-float katodeMaxVoltage = 2.0;
+float katodeMaxVoltage = MAXKATODE;
 
 /*
  * Variabili per la UART a "sinistra"
