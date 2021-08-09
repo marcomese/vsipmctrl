@@ -33,6 +33,10 @@ extern float* maxVoltagePointer;
 extern uint8_t vSection;
 extern uint32_t vDACChannels[2];
 
+extern float vref;
+
+extern uint16_t* vrefCal;
+
 void noop(void){}
 
 void idnCMD(void){
@@ -52,7 +56,7 @@ void voltageCMD(void){
         if(outVal <= *maxVoltagePointer){
             *outVoltagePointer = outVal;
 
-            float voltDACVal = 4096*outVal/2.9;
+            float voltDACVal = 4095*outVal/2.9;
 
             HAL_DAC_SetValue(&hdac, vDACChannels[vSection], DAC_ALIGN_12B_R, voltDACVal);
 
@@ -64,7 +68,7 @@ void voltageCMD(void){
         }else{
             memset(uartResp,0,UARTRESSIZE);
 
-            snprintf((char*)uartResp,UARTRESSIZE,"Vmax = %.2f\r\n",*maxVoltagePointer);
+            snprintf((char*)uartResp,UARTRESSIZE,"E:Vmax=%.2f\r\n",*maxVoltagePointer);
 
             HAL_UART_Transmit_IT(&huart1, uartResp, UARTRESSIZE);
         }
@@ -75,7 +79,7 @@ void voltageCMD(void){
 
         HAL_UART_Transmit_IT(&huart1,uartResp,UARTRESSIZE);
     }else{
-        HAL_UART_Transmit_IT(&huart1, (uint8_t*)"ERR: NaN     \r\n", UARTRESSIZE);
+        HAL_UART_Transmit_IT(&huart1, (uint8_t*)"E:NaN        \r\n", UARTRESSIZE);
     }
 }
 

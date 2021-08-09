@@ -54,9 +54,11 @@ uint8_t vSection = BIAS;
 uint32_t vDACChannels[2] = {DAC1_CHANNEL_1,
                             DAC1_CHANNEL_2};
 
-uint32_t ADCBuf[2];
+uint32_t ADCBuf[3];
 float biasReadVal;
 float katodeReadVal;
+float vref;
+uint16_t* vrefCal = (uint16_t*)VREFINTCAL_ADDR;
 
 /*
  * Variabili per il BIAS
@@ -170,6 +172,7 @@ int main(void)
 
   ADCBuf[0] = 0;
   ADCBuf[1] = 0;
+  ADCBuf[2] = 0;
 
   currPacket = packetToProcess[0];
 
@@ -204,7 +207,7 @@ int main(void)
   HAL_DAC_Start(&hdac, DAC1_CHANNEL_1);
   HAL_DAC_Start(&hdac, DAC1_CHANNEL_2);
 
-  HAL_ADC_Start_DMA(&hadc1, ADCBuf, 2);
+  HAL_ADC_Start_DMA(&hadc1, ADCBuf, 3);
 
   /* USER CODE END 2 */
 
@@ -300,7 +303,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc1.Init.NbrOfConversion = 2;
+  hadc1.Init.NbrOfConversion = 3;
   hadc1.Init.DMAContinuousRequests = ENABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   hadc1.Init.LowPowerAutoWait = DISABLE;
@@ -332,6 +335,14 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_2;
   sConfig.Rank = ADC_REGULAR_RANK_2;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_VREFINT;
+  sConfig.Rank = ADC_REGULAR_RANK_3;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
