@@ -46,6 +46,8 @@
 extern uint8_t* packetToProcess[PACKETSINBUF];
 extern uint8_t packetsNum;
 
+extern uint8_t charFromUart1;
+extern uint8_t charFromUart2;
 extern uint8_t dataBuffer[BUFSIZE];
 
 extern uint8_t* dataPointer;
@@ -63,6 +65,8 @@ extern uint16_t* vrefCal;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
+
+void receiveFromUart(UART_HandleTypeDef* huart, uint8_t isRx);
 
 /* USER CODE END PFP */
 
@@ -237,36 +241,17 @@ void DMA1_Channel1_IRQHandler(void)
 void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
-    uint8_t isRx = huart1.Instance->ISR & USART_ISR_RXNE;
+
+  uint8_t isRx = huart1.Instance->ISR & USART_ISR_RXNE;
+
   /* USER CODE END USART1_IRQn 0 */
   HAL_UART_IRQHandler(&huart1);
   /* USER CODE BEGIN USART1_IRQn 1 */
-  /*
-   * Se l'ultimo carattere è un carattere terminatore di comando ('\r' oppure '\n') controllo l'indirizzo successivo:
-   * nel caso in cui l'indirizzo successivo sia tale che aggiungendo un pacchetto della MASSIMA
-   * larghezza si arriva alla fine del buffer, allora punto all'inizio del buffer.
-   * Altrimenti continuo a riempire il buffer normalmente, tanto i pacchetti saranno di dimensioni
-   * inferiori a MAXPACKETSIZE e quindi non arriverò alla fine!
-   */
-  if(isRx){
-        if(*endPacketPointer == ';' || *endPacketPointer == '\r' || *endPacketPointer == '\n'){
 
-          packetToProcess[packetsNum] = dataPointer;
+  receiveFromUart(&huart1, isRx);
 
-          packetsNum = (++packetsNum < PACKETSINBUF) ?
-                        packetsNum : 0;
+  HAL_UART_Receive_IT(&huart2, endPacketPointer, 1);
 
-          dataPointer = (++endPacketPointer < &dataBuffer[BUFSIZE-MAXPACKETSIZE]) ?
-                         endPacketPointer : dataBuffer;
-
-          endPacketPointer = dataPointer;
-        }else{
-          endPacketPointer = (++endPacketPointer < &dataBuffer[BUFSIZE]) ?
-                              endPacketPointer : dataBuffer;
-        }
-
-        HAL_UART_Receive_IT(&huart1, endPacketPointer, 1);
-  }
   /* USER CODE END USART1_IRQn 1 */
 }
 
@@ -277,14 +262,48 @@ void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
 
+  uint8_t isRx = huart2.Instance->ISR & USART_ISR_RXNE;
+
   /* USER CODE END USART2_IRQn 0 */
   HAL_UART_IRQHandler(&huart2);
   /* USER CODE BEGIN USART2_IRQn 1 */
+
+  receiveFromUart(&huart2, isRx);
+
+  HAL_UART_Receive_IT(&huart2, endPacketPointer, 1);
 
   /* USER CODE END USART2_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
+
+void receiveFromUart(UART_HandleTypeDef* huart, uint8_t isRx){
+    /*
+     * Se l'ultimo carattere è un carattere terminatore di comando ('\r' oppure '\n') controllo l'indirizzo successivo:
+     * nel caso in cui l'indirizzo successivo sia tale che aggiungendo un pacchetto della MASSIMA
+     * larghezza si arriva alla fine del buffer, allora punto all'inizio del buffer.
+     * Altrimenti continuo a riempire il buffer normalmente, tanto i pacchetti saranno di dimensioni
+     * inferiori a MAXPACKETSIZE e quindi non arriverò alla fine!
+     */
+    if(isRx){
+          if(*endPacketPointer == ';' || *endPacketPointer == '\r' || *endPacketPointer == '\n'){
+
+            packetToProcess[packetsNum] = dataPointer;
+
+            packetsNum = (++packetsNum < PACKETSINBUF) ?
+                          packetsNum : 0;
+
+            dataPointer = (++endPacketPointer < &dataBuffer[BUFSIZE-MAXPACKETSIZE]) ?
+                           endPacketPointer : dataBuffer;
+
+            endPacketPointer = dataPointer;
+          }else{
+            endPacketPointer = (++endPacketPointer < &dataBuffer[BUFSIZE]) ?
+                                endPacketPointer : dataBuffer;
+          }
+    }
+}
+
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
   UNUSED(hadc);

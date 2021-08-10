@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <string.h>
 
-void execute(void);
+void execute(uint8_t);
 
 void noop(void);
 
@@ -23,6 +23,8 @@ void idnCMD(void);
 void voltageCMD(void);
 
 void maxCMD(void);
+
+void sendAddrCMD(void);
 
 typedef void (*commands_t)(void);
 

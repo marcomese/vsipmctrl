@@ -12,10 +12,11 @@ extern UART_HandleTypeDef huart2;
 
 extern DAC_HandleTypeDef hdac;
 
+extern uint8_t* currPacket;
 extern uint8_t* endPacketPointer;
+
 extern uint8_t uartResp[UARTRESSIZE];
 extern char argument[CMDARGSIZE];
-extern uint8_t command;
 
 extern float biasVoltage;
 extern float biasMaxVoltage;
@@ -107,15 +108,25 @@ void maxCMD(void){
     }
 }
 
+/*
+ * AGGIUNGERE BUFFER TX!!!!
+ */
+
+void sendAddrCMD(void){//DA SOSTITUIRE, QUESTA FUNZIONE DOVRA' AGGIUNGERE IL PACCHETTO NEL BUFFER
+    HAL_UART_Transmit_IT(&huart2,currPacket,endPacketPointer-currPacket); //UNA MACCHINA A STATI PENSERA' AD INVIARLO
+}
+
 const commands_t commandExecute[] = {(commands_t)noop,
                                      (commands_t)idnCMD,
                                      (commands_t)voltageCMD,
-                                     (commands_t)maxCMD};
+                                     (commands_t)maxCMD,
+                                     (commands_t)sendAddrCMD};
 
 
-void execute(void){
-    if(command){
+void execute(uint8_t cmd){
+    if(cmd){
+        //*(endPacketPointer-1) = 0; // Azzero il carattere terminatore perchè altrimenti si ripete la lettura del pacchetto
+        (*(commandExecute[cmd]))();
         *(endPacketPointer-1) = 0; // Azzero il carattere terminatore perchè altrimenti si ripete la lettura del pacchetto
-        (*(commandExecute[command]))();
     }
 }

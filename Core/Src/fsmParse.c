@@ -27,36 +27,6 @@ enum outputNames{command,
                  maxVoltagePointer,
                  vSection};
 
-#define NOOP 0
-#define IDNCMD 1
-#define VOLTCMD 2
-#define MAXCMD 3
-#define STATECMD 4
-#define HVCMD 5
-#define DVCMD 6
-#define PULSERATECMD 7
-
-#define NODESECT "NODE:"
-#define IDNSECT "*IDN?"
-#define BIASSECT "BIAS"
-#define KATODESECT "KATODE"
-#define MONITORSECT "MONITOR"
-
-#define NODELEN (sizeof(NODESECT)-1)
-#define IDNLEN (sizeof(IDNSECT)-1)
-#define BIASLEN (sizeof(BIASSECT)-1)
-#define KATODELEN (sizeof(KATODESECT)-1)
-#define MONITORLEN (sizeof(MONITORSECT)-1)
-
-#define VOLTCMDSTR "VOLT"
-#define MAXCMDSTR "MAX"
-#define STATECMDSTR "STATE"
-
-#define VOLTLEN (sizeof(VOLTCMDSTR)-1)
-#define MAXLEN (sizeof(MAXCMDSTR)-1)
-#define STATELEN (sizeof(STATECMDSTR)-1)
-
-
 // Funzioni di supporto
 state_function_t selectCmd(const char* arg){
     char* argEnd = strpbrk(arg," ?");
@@ -181,7 +151,7 @@ void parseCmdMON(fsm_t* s){
 }
 
 void parseSendToAddr(fsm_t* s){
-    FSM_OUT(s,command,uint8_t) = NOOP;//SENDTOADDR;
+    FSM_OUT(s,command,uint8_t) = SENDTOADDRCMD;
     FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 1;
 
