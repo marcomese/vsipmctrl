@@ -8,14 +8,13 @@
 #include "fsmPacketCtrl.h"
 
 enum pcktInputNames{
-    endPacketPointer,
     packetsNum,
     packetProcessed
 };
 
 enum pcktOutputNames{
     process,
-    packetIndex
+    packetReadIndex
 };
 
 /*
@@ -25,15 +24,11 @@ enum pcktOutputNames{
  */
 void packetCtrlIDLE(fsm_t* s){
     FSM_OUT(s,process,uint8_t) = 0;
-//    FSM_OUT(s,packetIndex,uint8_t) = 0;
 
-    uint8_t* lastCh = FSM_IN(s,endPacketPointer,uint8_t*)-1;
-
-    if(*lastCh == '\r' || *lastCh == '\n'){
+    if(FSM_IN(s,packetsNum,uint8_t) > 0)
         FSM_STATE(s) = packetCtrlSelect;
-    }else{
+    else
         FSM_STATE(s) = packetCtrlIDLE;
-    }
 }
 
 void packetCtrlSelect(fsm_t* s){
@@ -45,22 +40,18 @@ void packetCtrlSelect(fsm_t* s){
 void packetCtrlWaitProcessed(fsm_t* s){
     FSM_OUT(s,process,uint8_t) = 0;
 
-    if(FSM_IN(s,packetProcessed,uint8_t) == 1){
+    if(FSM_IN(s,packetProcessed,uint8_t) == 1)
         FSM_STATE(s) = packetCtrlNext;
-    }else{
+    else
         FSM_STATE(s) = packetCtrlWaitProcessed;
-    }
 }
 
 void packetCtrlNext(fsm_t* s){
     FSM_OUT(s,process,uint8_t) = 0;
-    FSM_OUT(s,packetIndex,uint8_t) = FSM_OUT(s,packetIndex,uint8_t)+1;
+    FSM_OUT(s,packetReadIndex,uint8_t) = FSM_OUT(s,packetReadIndex,uint8_t)+1;
 
-    if(FSM_OUT(s,packetIndex,uint8_t) < FSM_IN(s,packetsNum,uint8_t)){
+    if(FSM_IN(s,packetsNum,uint8_t) > 0)
         FSM_STATE(s) = packetCtrlSelect;
-    }else{
-        uint8_t* lastCh = FSM_IN(s,endPacketPointer,uint8_t*)-1;
-        *lastCh = 0; // Azzero il carattere terminatore perchè altrimenti si ripete la lettura del pacchetto
+    else
         FSM_STATE(s) = packetCtrlIDLE;
-    }
 }

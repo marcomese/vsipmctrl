@@ -21,6 +21,7 @@ enum inputNames{currPacket,
 enum outputNames{command,
                  busy,
                  argument,
+                 packetsNum,
                  packetProcessed,
                  outVoltagePointer,
                  readVoltagePointer,
@@ -117,7 +118,7 @@ void parseCmdIDN(fsm_t* s){
     FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 1;
 
-    FSM_STATE(s) = parseIDLE;
+    FSM_STATE(s) = parseNextPacket;
 }
 
 void parseCmdBIAS(fsm_t* s){
@@ -155,7 +156,7 @@ void parseSendToAddr(fsm_t* s){
     FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 1;
 
-    FSM_STATE(s) = parseIDLE;
+    FSM_STATE(s) = parseNextPacket;
 }
 
 void parseVoltageCmd(fsm_t* s){
@@ -189,7 +190,7 @@ void parseVoltageCmd(fsm_t* s){
 
     strncpy(argOut,voltArg,argL);
 
-    FSM_STATE(s) = parseIDLE;
+    FSM_STATE(s) = parseNextPacket;
 }
 
 void parseMaxCmd(fsm_t* s){
@@ -216,7 +217,7 @@ void parseMaxCmd(fsm_t* s){
 
     strncpy(argOut,voltArg,argL);
 
-    FSM_STATE(s) = parseIDLE;
+    FSM_STATE(s) = parseNextPacket;
 }
 
 void parseStateCmd(fsm_t* s){
@@ -228,7 +229,7 @@ void parseErrNode(fsm_t* s){
     FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 1;
 
-    FSM_STATE(s) = parseIDLE;
+    FSM_STATE(s) = parseNextPacket;
 }
 
 void parseErrSection(fsm_t* s){
@@ -236,7 +237,7 @@ void parseErrSection(fsm_t* s){
     FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 1;
 
-    FSM_STATE(s) = parseIDLE;
+    FSM_STATE(s) = parseNextPacket;
 }
 
 void parseErrCmd(fsm_t* s){
@@ -244,5 +245,15 @@ void parseErrCmd(fsm_t* s){
     FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 1;
 
+    FSM_STATE(s) = parseNextPacket;
+}
+
+void parseNextPacket(fsm_t* s){
+    FSM_OUT(s,command,uint8_t) = NOOP;
+    FSM_OUT(s,busy,uint8_t) = 1;
+    FSM_OUT(s,packetProcessed,uint8_t) = 1;
+    FSM_OUT(s,packetsNum,uint8_t) = FSM_OUT(s,packetsNum,uint8_t)-1;
+
     FSM_STATE(s) = parseIDLE;
 }
+

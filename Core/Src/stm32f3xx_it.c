@@ -45,6 +45,7 @@
 
 extern uint8_t* packetToProcess[PACKETSINBUF];
 extern uint8_t packetsNum;
+extern uint8_t packetIndex;
 
 extern uint8_t charFromUart1;
 extern uint8_t charFromUart2;
@@ -250,7 +251,7 @@ void USART1_IRQHandler(void)
 
   receiveFromUart(&huart1, isRx);
 
-  HAL_UART_Receive_IT(&huart2, endPacketPointer, 1);
+  HAL_UART_Receive_IT(&huart1, endPacketPointer, 1);
 
   /* USER CODE END USART1_IRQn 1 */
 }
@@ -288,10 +289,12 @@ void receiveFromUart(UART_HandleTypeDef* huart, uint8_t isRx){
     if(isRx){
           if(*endPacketPointer == ';' || *endPacketPointer == '\r' || *endPacketPointer == '\n'){
 
-            packetToProcess[packetsNum] = dataPointer;
+            packetToProcess[packetIndex] = dataPointer;
 
-            packetsNum = (++packetsNum < PACKETSINBUF) ?
-                          packetsNum : 0;
+            packetIndex = (++packetIndex < PACKETSINBUF) ?
+                          packetIndex : 0;
+
+            packetsNum++;
 
             dataPointer = (++endPacketPointer < &dataBuffer[BUFSIZE-MAXPACKETSIZE]) ?
                            endPacketPointer : dataBuffer;

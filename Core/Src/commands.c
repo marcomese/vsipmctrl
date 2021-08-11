@@ -124,9 +124,5 @@ const commands_t commandExecute[] = {(commands_t)noop,
 
 
 void execute(uint8_t cmd){
-    if(cmd){
-        //*(endPacketPointer-1) = 0; // Azzero il carattere terminatore perchè altrimenti si ripete la lettura del pacchetto
-        (*(commandExecute[cmd]))();
-        *(endPacketPointer-1) = 0; // Azzero il carattere terminatore perchè altrimenti si ripete la lettura del pacchetto
-    }
+    (*(commandExecute[cmd]))();
 }

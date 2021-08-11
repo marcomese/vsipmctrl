@@ -38,4 +38,6 @@ void parseErrNode(fsm_t* s);
 void parseErrSection(fsm_t* s);
 void parseErrCmd(fsm_t* s);
 
+void parseNextPacket(fsm_t* s);
+
 #endif /* INC_FSMPARSE_H_ */

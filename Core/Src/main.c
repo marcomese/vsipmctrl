@@ -101,6 +101,7 @@ float* maxVoltagePointer = NULL;
  */
 uint8_t process = 0;
 uint8_t packetIndex = 0;
+uint8_t packetReadIndex = 0;
 
 uint8_t* currPacket;
 
@@ -116,18 +117,18 @@ void* parseFsmInputs[] = {&currPacket,
 void* parseFsmOutputs[] = {&command,
                            &busy,
                            &argument,
+                           &packetsNum,
                            &packetProcessed,
                            &outVoltagePointer,
                            &readVoltagePointer,
                            &maxVoltagePointer,
                            &vSection};
 
-void* packetCtrlInputs[] = {&endPacketPointer,
-                            &packetsNum,
+void* packetCtrlInputs[] = {&packetsNum,
                             &packetProcessed};
 
 void* packetCtrlOutputs[] = {&process,
-                             &packetIndex};
+                             &packetReadIndex};
 
 /* USER CODE END PV */
 
@@ -218,7 +219,7 @@ int main(void)
   {
       runFSM(&packetCtrlFSM);
 
-      currPacket = packetToProcess[packetIndex];
+      currPacket = packetToProcess[packetReadIndex];
 
       runFSM(&parseFSM);
 
