@@ -18,5 +18,6 @@
 void fsmSendIDLE(fsm_t* s);
 void fsmSendUART(fsm_t* s);
 void fsmSendNextPacket(fsm_t* s);
+void fsmSendWait(fsm_t* s);
 
 #endif /* INC_FSMSENDUART_H_ */

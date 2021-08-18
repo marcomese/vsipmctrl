@@ -119,6 +119,8 @@ uint8_t pckToSendLen = 0;
 uint8_t* currPacket;
 uint8_t* currSendPck;
 
+uint8_t dataSent = 0;
+
 void* parseFsmInputs[] = {&currPacket,
                           &process,
                           &biasVoltage,
@@ -146,10 +148,12 @@ void* packetCtrlOutputs[] = {&process,
                              &packetReadIndex};
 
 void* sendFsmInputs[] = {&uartDir,
-                         &pckToSendNum};
+                         &pckToSendNum,
+                         &dataSent};
 
 void* sendFsmOutputs[] = {&pckToSendIndex,
-                          &sendCommand};
+                          &sendCommand,
+                          &dataSent};
 
 /* USER CODE END PV */
 
@@ -193,6 +197,8 @@ int main(void)
 
     memset(dataBuffer1,0,BUFSIZE);
     memset(dataBuffer2,0,BUFSIZE);
+    memset(sendBuffer,0,BUFSIZE);
+    memset(packetToProcess,0,BUFSIZE);
     memset(packetToSend,0,BUFSIZE);
 
     ADCBuf[0] = 0;
@@ -223,16 +229,16 @@ int main(void)
     HAL_UART_Receive_IT(&huart2, dataBuffer2, 1);
 
     packetCtrlFSM = initFSM(packetCtrlIDLE,
-                          packetCtrlInputs,
-                          packetCtrlOutputs);
+                            packetCtrlInputs,
+                            packetCtrlOutputs);
 
     parseFSM = initFSM(parseIDLE,
-                     parseFsmInputs,
-                     parseFsmOutputs);
+                       parseFsmInputs,
+                       parseFsmOutputs);
 
     sendFSM = initFSM(fsmSendIDLE,
-                    sendFsmInputs,
-                    sendFsmOutputs);
+                      sendFsmInputs,
+                      sendFsmOutputs);
 
     HAL_DAC_Start(&hdac, DAC1_CHANNEL_1);
     HAL_DAC_Start(&hdac, DAC1_CHANNEL_2);

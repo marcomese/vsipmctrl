@@ -63,6 +63,8 @@ extern float katodeReadVal;
 float vref;
 uint16_t* vrefCal = (uint16_t*)VREFINTCAL_ADDR;
 
+extern uint8_t dataSent;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -329,6 +331,13 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
       biasReadVal = *vrefCal*3.3*ADCBuf[BIAS]/(4095*vref);
       katodeReadVal = *vrefCal*3.3*ADCBuf[KATODE]/(4095*vref);
   }
+}
+
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+{
+  UNUSED(huart);
+
+  dataSent = 1;
 }
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

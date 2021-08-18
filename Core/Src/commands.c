@@ -72,11 +72,11 @@ void putInSendBuf(uint8_t* dstBuf, uint8_t** dstBufPtr,
 void noop(void){}
 
 void idnCMD(void){
-    char idnStr[ADDRLEN+2];
-    snprintf(idnStr,ADDRLEN+3,"%s\r\n",ADDR);
+    char idnStr[ADDRLEN+1];
+    snprintf(idnStr,ADDRLEN+2,"%s\n",ADDR);
 
     putInSendBuf(sendBuffer, &sendPointer,
-                 (uint8_t*)idnStr, ADDRLEN+2,
+                 (uint8_t*)idnStr, ADDRLEN+1,
                  packetToSend, &sendBufIndex, &pckToSendNum,
                  uartDir);
 }
@@ -97,18 +97,18 @@ void voltageCMD(void){
 
             memset(uartResp,0,UARTRESSIZE);
 
-            snprintf((char*)uartResp,UARTRESSIZE,"%.2f\r\n",outVal);
+            snprintf((char*)uartResp,UARTRESSIZE,"%.2f\n",outVal);
         }else{
             memset(uartResp,0,UARTRESSIZE);
 
-            snprintf((char*)uartResp,UARTRESSIZE,"E:Vmax=%.2f\r\n",*maxVoltagePointer);
+            snprintf((char*)uartResp,UARTRESSIZE,"E:Vmax=%.2f\n",*maxVoltagePointer);
         }
     }else if(argument[0] == '?'){
         memset(uartResp,0,UARTRESSIZE);
 
-        snprintf((char*)uartResp,UARTRESSIZE,"%.2f\r\n",*readVoltagePointer);
+        snprintf((char*)uartResp,UARTRESSIZE,"%.2f\n",*readVoltagePointer);
     }else{
-          snprintf((char*)uartResp,UARTRESSIZE,"E:NaN\r\n");
+        snprintf((char*)uartResp,UARTRESSIZE,"E:NaN\n");
     }
 
     respLen = strlen((const char*)uartResp);
@@ -129,13 +129,13 @@ void maxCMD(void){
 
         memset(uartResp,0,UARTRESSIZE);
 
-        snprintf((char*)uartResp,UARTRESSIZE,"%.2f\r\n",maxVal);
+        snprintf((char*)uartResp,UARTRESSIZE,"%.2f\n",maxVal);
     }else if(argument[0] == '?'){
         memset(uartResp,0,UARTRESSIZE);
 
-        snprintf((char*)uartResp,UARTRESSIZE,"%.2f\r\n",*maxVoltagePointer);
+        snprintf((char*)uartResp,UARTRESSIZE,"%.2f\n",*maxVoltagePointer);
     }else{
-        snprintf((char*)uartResp,UARTRESSIZE,"E:NaN\r\n");
+        snprintf((char*)uartResp,UARTRESSIZE,"E:NaN\n");
     }
 
     respLen = strlen((const char*)uartResp);
@@ -155,7 +155,7 @@ void sendAddrCMD(void){
             UART2 : UART1;
 
     putInSendBuf(sendBuffer, &sendPointer,
-                 currPacket, (uint8_t*)pckEnd-currPacket+1,
+                 currPacket, (uint8_t*)pckEnd-currPacket,
                  packetToSend, &sendBufIndex, &pckToSendNum,
                  uDir);
 }
