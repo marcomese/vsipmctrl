@@ -14,5 +14,6 @@
 
 #include "fsmParse.h"
 #include "fsmPacketCtrl.h"
+#include "fsmSendUart.h"
 
 #endif /* INC_FSM_LIST_H_ */

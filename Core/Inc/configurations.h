@@ -22,6 +22,8 @@
 
 #define UARTRESSIZE 15
 #define CMDARGSIZE 15
+#define UART1 0xFF
+#define UART2 0xFE
 
 #define MAXBIAS 1.5
 #define MAXKATODE 2.0
@@ -31,8 +33,9 @@
 #define VOLTCMD 2
 #define MAXCMD 3
 #define SENDTOADDRCMD 4
-#define STATECMD 5
-#define PULSERATECMD 6
+#define SENDTOUART 5
+#define STATECMD 6
+#define PULSERATECMD 7
 
 #define NODESECT "NODE:"
 #define IDNSECT "*IDN?"

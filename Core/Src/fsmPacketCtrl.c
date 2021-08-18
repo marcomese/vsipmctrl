@@ -6,6 +6,7 @@
  */
 
 #include "fsmPacketCtrl.h"
+#include "configurations.h"
 
 enum pcktInputNames{
     packetsNum,
@@ -17,11 +18,6 @@ enum pcktOutputNames{
     packetReadIndex
 };
 
-/*
- * AGGIUNGERE UNO STATO DI WAIT CHE ASPETTI CHE LA parseFSM SI LIBERI!!! ALTRIMENTI SE NELLA SERIALE CI SONO
- * DATI NUOVI CHE SUBITO ARRIVANO AL TERMINATORE (*IDN?\N AD ESEMPIO) MI VA A CAMBIARE IL PACCHETTO DURANTE L'ESECUZIONE
- * (TRA L'ALTRO DEVI AGGIUNGERE FRA GLI INGRESSI IL SEGNALE DI BUSY DELLA parseFSM)
- */
 void packetCtrlIDLE(fsm_t* s){
     FSM_OUT(s,process,uint8_t) = 0;
 
@@ -48,7 +44,8 @@ void packetCtrlWaitProcessed(fsm_t* s){
 
 void packetCtrlNext(fsm_t* s){
     FSM_OUT(s,process,uint8_t) = 0;
-    FSM_OUT(s,packetReadIndex,uint8_t) = FSM_OUT(s,packetReadIndex,uint8_t)+1;
+    FSM_OUT(s,packetReadIndex,uint8_t) = (++FSM_OUT(s,packetReadIndex,uint8_t) < PACKETSINBUF) ?
+                                          FSM_OUT(s,packetReadIndex,uint8_t) : 0;
 
     if(FSM_IN(s,packetsNum,uint8_t) > 0)
         FSM_STATE(s) = packetCtrlSelect;

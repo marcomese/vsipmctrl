@@ -57,8 +57,6 @@ uint32_t vDACChannels[2] = {DAC1_CHANNEL_1,
 uint32_t ADCBuf[3];
 float biasReadVal;
 float katodeReadVal;
-float vref;
-uint16_t* vrefCal = (uint16_t*)VREFINTCAL_ADDR;
 
 /*
  * Variabili per il BIAS
@@ -73,22 +71,34 @@ float katodeVoltage = 0.0;
 float katodeMaxVoltage = MAXKATODE;
 
 /*
- * Variabili per la UART a "sinistra"
+ * Variabili per la UART
  */
-uint8_t dataBuffer[BUFSIZE];
+uint8_t dataBuffer1[BUFSIZE];
+uint8_t dataBuffer2[BUFSIZE];
+uint8_t sendBuffer[BUFSIZE];
 
-uint8_t* dataPointer = dataBuffer;
-uint8_t* endPacketPointer = dataBuffer;
+uint8_t* dataPointer1 = dataBuffer1;
+uint8_t* endPacketPointer1 = dataBuffer1;
+
+uint8_t* dataPointer2 = dataBuffer2;
+uint8_t* endPacketPointer2 = dataBuffer2;
+
+uint8_t* sendPointer = sendBuffer;
+uint8_t* endSendPointer = sendBuffer;
 
 uint8_t* packetToProcess[PACKETSINBUF];
 uint8_t packetsNum = 0;
 
-uint8_t uartResp[UARTRESSIZE];
+uint8_t* packetToSend[PACKETSINBUF];
+uint8_t pckToSendNum = 0;
+
+uint8_t uartDir = 0;
 
 /*
  * Variabili per parseFSM
  */
 uint8_t command = 0;
+uint8_t sendCommand = 0;
 uint8_t busy = 0;
 uint8_t packetProcessed = 0;
 char argument[CMDARGSIZE];
@@ -102,8 +112,12 @@ float* maxVoltagePointer = NULL;
 uint8_t process = 0;
 uint8_t packetIndex = 0;
 uint8_t packetReadIndex = 0;
+uint8_t sendBufIndex = 0;
+uint8_t pckToSendIndex = 0;
+uint8_t pckToSendLen = 0;
 
 uint8_t* currPacket;
+uint8_t* currSendPck;
 
 void* parseFsmInputs[] = {&currPacket,
                           &process,
@@ -119,6 +133,7 @@ void* parseFsmOutputs[] = {&command,
                            &argument,
                            &packetsNum,
                            &packetProcessed,
+                           &uartDir,
                            &outVoltagePointer,
                            &readVoltagePointer,
                            &maxVoltagePointer,
@@ -129,6 +144,12 @@ void* packetCtrlInputs[] = {&packetsNum,
 
 void* packetCtrlOutputs[] = {&process,
                              &packetReadIndex};
+
+void* sendFsmInputs[] = {&uartDir,
+                         &pckToSendNum};
+
+void* sendFsmOutputs[] = {&pckToSendIndex,
+                          &sendCommand};
 
 /* USER CODE END PV */
 
@@ -159,6 +180,7 @@ int main(void)
 
     fsm_t parseFSM;
     fsm_t packetCtrlFSM;
+    fsm_t sendFSM;
 
   /* USER CODE END 1 */
 
@@ -168,14 +190,16 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  memset(dataBuffer,0,BUFSIZE);
-  memset(uartResp,0,UARTRESSIZE);
 
-  ADCBuf[0] = 0;
-  ADCBuf[1] = 0;
-  ADCBuf[2] = 0;
+    memset(dataBuffer1,0,BUFSIZE);
+    memset(dataBuffer2,0,BUFSIZE);
+    memset(packetToSend,0,BUFSIZE);
 
-  currPacket = packetToProcess[0];
+    ADCBuf[0] = 0;
+    ADCBuf[1] = 0;
+    ADCBuf[2] = 0;
+
+    currPacket = packetToProcess[0];
 
   /* USER CODE END Init */
 
@@ -195,21 +219,25 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  HAL_UART_Receive_IT(&huart1, dataBuffer, 1);
-  HAL_UART_Receive_IT(&huart2, dataBuffer, 1);
+    HAL_UART_Receive_IT(&huart1, dataBuffer1, 1);
+    HAL_UART_Receive_IT(&huart2, dataBuffer2, 1);
 
-  packetCtrlFSM = initFSM(packetCtrlIDLE,
+    packetCtrlFSM = initFSM(packetCtrlIDLE,
                           packetCtrlInputs,
                           packetCtrlOutputs);
 
-  parseFSM = initFSM(parseIDLE,
+    parseFSM = initFSM(parseIDLE,
                      parseFsmInputs,
                      parseFsmOutputs);
 
-  HAL_DAC_Start(&hdac, DAC1_CHANNEL_1);
-  HAL_DAC_Start(&hdac, DAC1_CHANNEL_2);
+    sendFSM = initFSM(fsmSendIDLE,
+                    sendFsmInputs,
+                    sendFsmOutputs);
 
-  HAL_ADC_Start_DMA(&hadc1, ADCBuf, 3);
+    HAL_DAC_Start(&hdac, DAC1_CHANNEL_1);
+    HAL_DAC_Start(&hdac, DAC1_CHANNEL_2);
+
+    HAL_ADC_Start_DMA(&hadc1, ADCBuf, 3);
 
   /* USER CODE END 2 */
 
@@ -224,6 +252,11 @@ int main(void)
       runFSM(&parseFSM);
 
       execute(command);
+
+      runFSM(&sendFSM);
+
+      execute(sendCommand);
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

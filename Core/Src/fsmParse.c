@@ -23,6 +23,7 @@ enum outputNames{command,
                  argument,
                  packetsNum,
                  packetProcessed,
+                 uartDir,
                  outVoltagePointer,
                  readVoltagePointer,
                  maxVoltagePointer,
@@ -43,7 +44,6 @@ state_function_t selectCmd(const char* arg){
 
     return parseErrCmd;
 }
-
 
 // Macchina a stati
 void parseIDLE(fsm_t* s){
@@ -118,6 +118,14 @@ void parseCmdIDN(fsm_t* s){
     FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 1;
 
+    uint8_t* pack = FSM_IN(s,currPacket,uint8_t*);
+
+    const char uartDirVals[2] = {UART1,UART2};
+
+    char* idnEnd = strpbrk((const char*)pack,uartDirVals);
+
+    FSM_OUT(s,uartDir,uint8_t) = *idnEnd;
+
     FSM_STATE(s) = parseNextPacket;
 }
 
@@ -184,7 +192,11 @@ void parseVoltageCmd(fsm_t* s){
 
     const char* voltArg = (const char*)pack+NODELEN+ADDRLEN+sectLen+VOLTLEN+2;
 
-    char* argEnd = strpbrk(voltArg,":;\n\r");
+    const char uartDirVals[2] = {UART1,UART2};
+
+    char* argEnd = strpbrk(voltArg,uartDirVals);
+
+    FSM_OUT(s,uartDir,uint8_t) = *argEnd;
 
     size_t argL = (argEnd > 0) ? argEnd-voltArg : sizeof(argEnd)-1;
 
@@ -211,7 +223,9 @@ void parseMaxCmd(fsm_t* s){
 
     const char* voltArg = (const char*)pack+NODELEN+ADDRLEN+sectLen+MAXLEN+2;
 
-    char* argEnd = strpbrk(voltArg,":;\n\r");
+    const char uartDirVals[2] = {UART1,UART2};
+
+    char* argEnd = strpbrk(voltArg,uartDirVals);
 
     size_t argL = (argEnd > 0) ? argEnd-voltArg : sizeof(argEnd)-1;
 

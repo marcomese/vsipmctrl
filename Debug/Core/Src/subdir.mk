@@ -9,6 +9,7 @@ C_SRCS += \
 ../Core/Src/fsm.c \
 ../Core/Src/fsmPacketCtrl.c \
 ../Core/Src/fsmParse.c \
+../Core/Src/fsmSendUart.c \
 ../Core/Src/main.c \
 ../Core/Src/stm32f3xx_hal_msp.c \
 ../Core/Src/stm32f3xx_it.c \
@@ -21,6 +22,7 @@ OBJS += \
 ./Core/Src/fsm.o \
 ./Core/Src/fsmPacketCtrl.o \
 ./Core/Src/fsmParse.o \
+./Core/Src/fsmSendUart.o \
 ./Core/Src/main.o \
 ./Core/Src/stm32f3xx_hal_msp.o \
 ./Core/Src/stm32f3xx_it.o \
@@ -33,6 +35,7 @@ C_DEPS += \
 ./Core/Src/fsm.d \
 ./Core/Src/fsmPacketCtrl.d \
 ./Core/Src/fsmParse.d \
+./Core/Src/fsmSendUart.d \
 ./Core/Src/main.d \
 ./Core/Src/stm32f3xx_hal_msp.d \
 ./Core/Src/stm32f3xx_it.d \

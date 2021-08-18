@@ -2,6 +2,7 @@
 "./Core/Src/fsm.o"
 "./Core/Src/fsmPacketCtrl.o"
 "./Core/Src/fsmParse.o"
+"./Core/Src/fsmSendUart.o"
 "./Core/Src/main.o"
 "./Core/Src/stm32f3xx_hal_msp.o"
 "./Core/Src/stm32f3xx_it.o"
