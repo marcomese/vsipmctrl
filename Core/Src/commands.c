@@ -151,11 +151,11 @@ void sendAddrCMD(void){
     const char uartDirVals[2] = {UART1,UART2};
     char* pckEnd = strpbrk((const char*)currPacket,uartDirVals);
 
-    uDir = (uartDir == UART1) ?
+    uDir = (*pckEnd == UART1) ?
             UART2 : UART1;
 
     putInSendBuf(sendBuffer, &sendPointer,
-                 currPacket, (uint8_t*)pckEnd-currPacket,
+                 currPacket, (uint8_t*)pckEnd-currPacket+1,
                  packetToSend, &sendBufIndex, &pckToSendNum,
                  uDir);
 }
