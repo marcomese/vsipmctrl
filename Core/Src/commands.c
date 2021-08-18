@@ -146,8 +146,18 @@ void maxCMD(void){
 
 }
 
-void sendAddrCMD(void){//DA SOSTITUIRE, QUESTA FUNZIONE DOVRA' AGGIUNGERE IL PACCHETTO NEL BUFFER
-//    HAL_UART_Transmit_IT(&huart2,currPacket,endPacketPointer-currPacket); //UNA MACCHINA A STATI PENSERA' AD INVIARLO
+void sendAddrCMD(void){
+    uint8_t uDir;
+    const char uartDirVals[2] = {UART1,UART2};
+    char* pckEnd = strpbrk((const char*)currPacket,uartDirVals);
+
+    uDir = (uartDir == UART1) ?
+            UART2 : UART1;
+
+    putInSendBuf(sendBuffer, &sendPointer,
+                 currPacket, (uint8_t*)pckEnd-currPacket,
+                 packetToSend, &sendBufIndex, &pckToSendNum,
+                 uDir);
 }
 
 void sendToUartCMD(void){

@@ -164,6 +164,14 @@ void parseSendToAddr(fsm_t* s){
     FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 1;
 
+    uint8_t* pack = FSM_IN(s,currPacket,uint8_t*);
+
+    const char uartDirVals[2] = {UART1,UART2};
+
+    char* argEnd = strpbrk((const char*)pack,uartDirVals);
+
+    FSM_OUT(s,uartDir,uint8_t) = *argEnd;
+
     FSM_STATE(s) = parseNextPacket;
 }
 
