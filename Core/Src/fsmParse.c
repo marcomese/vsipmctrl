@@ -39,8 +39,6 @@ state_function_t selectCmd(const char* arg){
         return parseVoltageCmd;
     else if(strncmp(arg,MAXCMDSTR,argL) == 0)
         return parseMaxCmd;
-    else if(strncmp(arg,STATECMDSTR,argL) == 0)
-        return parseStateCmd;
 
     return parseErrCmd;
 }
@@ -64,13 +62,12 @@ void parseNode(fsm_t* s){
 
     uint8_t* pack = FSM_IN(s,currPacket,uint8_t*);
 
-    if(strncmp((const char*)pack,NODESECT,NODELEN) == 0){
+    if(strncmp((const char*)pack,NODESECT,NODELEN) == 0)
         FSM_STATE(s) = parseAddr;
-    }else if(strncmp((const char*)pack,IDNSECT,IDNLEN) == 0){
+    else if(strncmp((const char*)pack,IDNSECT,IDNLEN) == 0)
         FSM_STATE(s) = parseCmdIDN;
-    }else{
+    else
         FSM_STATE(s) = parseErrNode;
-    }
 }
 
 void parseAddr(fsm_t* s){
@@ -82,11 +79,10 @@ void parseAddr(fsm_t* s){
 
     const char* addrStr = (const char*)pack+NODELEN;
 
-    if(strncmp(addrStr,ADDR,ADDRLEN) == 0){
+    if(strncmp(addrStr,ADDR,ADDRLEN) == 0)
         FSM_STATE(s) = parseSection;
-    }else{
+    else
         FSM_STATE(s) = parseSendToAddr;
-    }
 }
 
 void parseSection(fsm_t* s){
@@ -102,15 +98,12 @@ void parseSection(fsm_t* s){
 
     uint8_t secL = endSect-sectStr;
 
-    if(secL > 0 && strncmp(sectStr,BIASSECT,secL) == 0){
+    if(secL > 0 && strncmp(sectStr,BIASSECT,secL) == 0)
         FSM_STATE(s) = parseCmdBIAS;
-    }else if(secL > 0 && strncmp(sectStr,KATODESECT,secL) == 0){
+    else if(secL > 0 && strncmp(sectStr,KATODESECT,secL) == 0)
         FSM_STATE(s) = parseCmdKAT;
-    }else if(secL > 0 && strncmp(sectStr,MONITORSECT,secL) == 0){
-        FSM_STATE(s) = parseCmdMON;
-    }else{
+    else
         FSM_STATE(s) = parseErrSection;
-    }
 }
 
 void parseCmdIDN(fsm_t* s){
@@ -153,10 +146,6 @@ void parseCmdKAT(fsm_t* s){
     const char* katArg = (const char*)pack+NODELEN+ADDRLEN+KATODELEN+2;
 
     FSM_STATE(s) = selectCmd(katArg);
-}
-
-void parseCmdMON(fsm_t* s){
-    return;
 }
 
 void parseSendToAddr(fsm_t* s){
@@ -232,10 +221,6 @@ void parseMaxCmd(fsm_t* s){
     strncpy(argOut,voltArg,argL);
 
     FSM_STATE(s) = parseNextPacket;
-}
-
-void parseStateCmd(fsm_t* s){
-    return;
 }
 
 void parseErrNode(fsm_t* s){

@@ -22,15 +22,9 @@ void parseSection(fsm_t* s);
 void parseCmdIDN(fsm_t* s);
 void parseCmdBIAS(fsm_t* s);
 void parseCmdKAT(fsm_t* s);
-void parseCmdMON(fsm_t* s);
 
 void parseVoltageCmd(fsm_t* s);
 void parseMaxCmd(fsm_t* s);
-void parseStateCmd(fsm_t* s);
-
-void parseVoltageQuery(fsm_t* s);
-void parseMaxQuery(fsm_t* s);
-void parseStateQuery(fsm_t* s);
 
 void parseExecute(fsm_t* s);
 void parseSendToAddr(fsm_t* s);

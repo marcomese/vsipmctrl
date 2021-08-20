@@ -13,7 +13,6 @@ extern UART_HandleTypeDef huart2;
 extern DAC_HandleTypeDef hdac;
 
 extern uint8_t* currPacket;
-extern uint8_t* endPacketPointer;
 
 extern uint8_t uartDir;
 
@@ -26,21 +25,9 @@ extern uint8_t pckToSendIndex;
 
 extern char argument[CMDARGSIZE];
 
-extern float biasVoltage;
-extern float biasMaxVoltage;
-
-extern float katodeVoltage;
-extern float katodeMaxVoltage;
-
-extern float biasReadVal;
-extern float katodeReadVal;
-
 extern float* outVoltagePointer;
 extern float* readVoltagePointer;
 extern float* maxVoltagePointer;
-
-extern uint8_t vSection;
-extern uint32_t vDACChannels[2];
 
 void putInSendBuf(uint8_t* dstBuf, uint8_t** dstBufPtr,
                   uint8_t* srcPtr, uint8_t srcLen,
@@ -87,29 +74,18 @@ void voltageCMD(void){
     uint8_t uartResp[UARTRESSIZE];
     uint8_t respLen = 0;
 
-    if(err != argument){
+    memset(uartResp,0,UARTRESSIZE);
+
+    if(err != argument)
         if(outVal <= *maxVoltagePointer){
             *outVoltagePointer = outVal;
-
-            float voltDACVal = 4095*outVal/2.9;
-
-            HAL_DAC_SetValue(&hdac, vDACChannels[vSection], DAC_ALIGN_12B_R, voltDACVal);
-
-            memset(uartResp,0,UARTRESSIZE);
-
             snprintf((char*)uartResp,UARTRESSIZE,"%.2f\n",outVal);
-        }else{
-            memset(uartResp,0,UARTRESSIZE);
-
+        }else
             snprintf((char*)uartResp,UARTRESSIZE,"E:Vmax=%.2f\n",*maxVoltagePointer);
-        }
-    }else if(argument[0] == '?'){
-        memset(uartResp,0,UARTRESSIZE);
-
+    else if(argument[0] == '?')
         snprintf((char*)uartResp,UARTRESSIZE,"%.2f\n",*readVoltagePointer);
-    }else{
+    else
         snprintf((char*)uartResp,UARTRESSIZE,"E:NaN\n");
-    }
 
     respLen = strlen((const char*)uartResp);
     putInSendBuf(sendBuffer, &sendPointer,
@@ -124,19 +100,15 @@ void maxCMD(void){
     uint8_t uartResp[UARTRESSIZE];
     uint8_t respLen = 0;
 
+    memset(uartResp,0,UARTRESSIZE);
+
     if(err != argument){
         *maxVoltagePointer = maxVal;
-
-        memset(uartResp,0,UARTRESSIZE);
-
         snprintf((char*)uartResp,UARTRESSIZE,"%.2f\n",maxVal);
-    }else if(argument[0] == '?'){
-        memset(uartResp,0,UARTRESSIZE);
-
+    }else if(argument[0] == '?')
         snprintf((char*)uartResp,UARTRESSIZE,"%.2f\n",*maxVoltagePointer);
-    }else{
+    else
         snprintf((char*)uartResp,UARTRESSIZE,"E:NaN\n");
-    }
 
     respLen = strlen((const char*)uartResp);
     putInSendBuf(sendBuffer, &sendPointer,
@@ -165,11 +137,10 @@ void sendToUartCMD(void){
     uint8_t pckLen = packetToSend[pckToSendIndex][1];
     uint8_t* pck = packetToSend[pckToSendIndex]+2;
 
-    if(uDir == UART1){
+    if(uDir == UART1)
         HAL_UART_Transmit_IT(&huart1,pck,pckLen);
-    }else if(uDir == UART2){
+    else if(uDir == UART2)
         HAL_UART_Transmit_IT(&huart2,pck,pckLen);
-    }
 
     pckToSendNum--;
 }

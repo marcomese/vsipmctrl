@@ -45,14 +45,14 @@ DMA_HandleTypeDef hdma_adc1;
 
 DAC_HandleTypeDef hdac;
 
+TIM_HandleTypeDef htim2;
+
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 
 uint8_t vSection = BIAS;
-uint32_t vDACChannels[2] = {DAC1_CHANNEL_1,
-                            DAC1_CHANNEL_2};
 
 uint32_t ADCBuf[3];
 float biasReadVal;
@@ -121,6 +121,15 @@ uint8_t* currSendPck;
 
 uint8_t dataSent = 0;
 
+uint8_t timeElapsed = 0;
+
+float pidErrBias = 0.0;
+float pidOutBias = 0.0;
+float pidErrKat = 0.0;
+float pidOutKat = 0.0;
+float biasDACVal = 0.0;
+float katDACVal = 0.0;
+
 void* parseFsmInputs[] = {&currPacket,
                           &process,
                           &biasVoltage,
@@ -165,6 +174,7 @@ static void MX_ADC1_Init(void);
 static void MX_DAC_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -185,6 +195,16 @@ int main(void)
     fsm_t parseFSM;
     fsm_t packetCtrlFSM;
     fsm_t sendFSM;
+
+    arm_pid_instance_f32 biasPID;
+    biasPID.Kp = PIDKp;
+    biasPID.Ki = PIDKi;
+    biasPID.Kd = PIDkd;
+
+    arm_pid_instance_f32 katPID;
+    katPID.Kp = PIDKp;
+    katPID.Ki = PIDKi;
+    katPID.Kd = PIDkd;
 
   /* USER CODE END 1 */
 
@@ -223,7 +243,11 @@ int main(void)
   MX_DAC_Init();
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
+
+    arm_pid_init_f32(&biasPID, 1);
+    arm_pid_init_f32(&katPID, 1);
 
     HAL_UART_Receive_IT(&huart1, dataBuffer1, 1);
     HAL_UART_Receive_IT(&huart2, dataBuffer2, 1);
@@ -245,6 +269,8 @@ int main(void)
 
     HAL_ADC_Start_DMA(&hadc1, ADCBuf, 3);
 
+    HAL_TIM_Base_Start_IT(&htim2);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -262,6 +288,22 @@ int main(void)
       runFSM(&sendFSM);
 
       execute(sendCommand);
+
+      if(timeElapsed){
+          pidErrBias = biasVoltage-biasReadVal;
+          pidOutBias = arm_pid_f32(&biasPID, pidErrBias);
+          biasDACVal = pidOutBias*4095/2.9;
+
+          HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_1, DAC_ALIGN_12B_R, biasDACVal);
+
+          pidErrKat = katodeVoltage-katodeReadVal;
+          pidOutKat = arm_pid_f32(&katPID, pidErrKat);
+          biasDACVal = pidOutKat*4095/2.9;
+
+          HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_2, DAC_ALIGN_12B_R, katDACVal);
+
+          timeElapsed = 0;
+      }
 
     /* USER CODE END WHILE */
 
@@ -435,6 +477,51 @@ static void MX_DAC_Init(void)
   /* USER CODE BEGIN DAC_Init 2 */
 
   /* USER CODE END DAC_Init 2 */
+
+}
+
+/**
+  * @brief TIM2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM2_Init(void)
+{
+
+  /* USER CODE BEGIN TIM2_Init 0 */
+
+  /* USER CODE END TIM2_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM2_Init 1 */
+
+  /* USER CODE END TIM2_Init 1 */
+  htim2.Instance = TIM2;
+  htim2.Init.Prescaler = 63;
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = 100000;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM2_Init 2 */
+
+  /* USER CODE END TIM2_Init 2 */
 
 }
 

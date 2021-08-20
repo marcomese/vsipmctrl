@@ -32,11 +32,13 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+//#define ARM_MATH_CM4
 #include <string.h>
 #include "configurations.h"
 #include "fsm.h"
 #include "fsm_list.h"
 #include "commands.h"
+#include "arm_math.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

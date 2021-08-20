@@ -34,27 +34,25 @@
 #define MAXCMD 3
 #define SENDTOADDRCMD 4
 #define SENDTOUART 5
-#define STATECMD 6
-#define PULSERATECMD 7
 
 #define NODESECT "NODE:"
 #define IDNSECT "*IDN?"
 #define BIASSECT "BIAS"
 #define KATODESECT "KATODE"
-#define MONITORSECT "MONITOR"
 
 #define NODELEN (sizeof(NODESECT)-1)
 #define IDNLEN (sizeof(IDNSECT)-1)
 #define BIASLEN (sizeof(BIASSECT)-1)
 #define KATODELEN (sizeof(KATODESECT)-1)
-#define MONITORLEN (sizeof(MONITORSECT)-1)
 
 #define VOLTCMDSTR "VOLT"
 #define MAXCMDSTR "MAX"
-#define STATECMDSTR "STATE"
 
 #define VOLTLEN (sizeof(VOLTCMDSTR)-1)
 #define MAXLEN (sizeof(MAXCMDSTR)-1)
-#define STATELEN (sizeof(STATECMDSTR)-1)
+
+#define PIDKp 0.6
+#define PIDKi 0.1
+#define PIDkd 0.1
 
 #endif /* INC_CONFIGURATIONS_H_ */

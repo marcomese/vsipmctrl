@@ -20,17 +20,14 @@ enum sendOutputNames{
     dataSentOut
 };
 
-// Funzioni di supporto
-
 // Macchina a stati
 void fsmSendIDLE(fsm_t* s){
     FSM_OUT(s,sendCommand,uint8_t) = NOOP;
 
-    if(FSM_IN(s,pckToSendNum,uint8_t) > 0){
+    if(FSM_IN(s,pckToSendNum,uint8_t) > 0)
         FSM_STATE(s) = fsmSendUART;
-    }else{
+    else
         FSM_STATE(s) = fsmSendIDLE;
-    }
 }
 
 void fsmSendUART(fsm_t* s){
@@ -42,11 +39,10 @@ void fsmSendUART(fsm_t* s){
 void fsmSendWait(fsm_t* s){
     FSM_OUT(s,sendCommand,uint8_t) = NOOP;
 
-    if(FSM_IN(s,dataSentIn,uint8_t) == 1){
+    if(FSM_IN(s,dataSentIn,uint8_t) == 1)
         FSM_STATE(s) = fsmSendNextPacket;
-    }else{
+    else
         FSM_STATE(s) = fsmSendWait;
-    }
 }
 
 void fsmSendNextPacket(fsm_t* s){

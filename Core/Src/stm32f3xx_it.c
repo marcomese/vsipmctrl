@@ -65,6 +65,8 @@ uint16_t* vrefCal = (uint16_t*)VREFINTCAL_ADDR;
 
 extern uint8_t dataSent;
 
+extern uint8_t timeElapsed;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -82,6 +84,7 @@ void saveInCircBuf(uint8_t* buffer, uint8_t** startPckPtr, uint8_t** endPckPtr,
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_adc1;
+extern DAC_HandleTypeDef hdac;
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;
 /* USER CODE BEGIN EV */
@@ -286,6 +289,20 @@ void USART2_IRQHandler(void)
   /* USER CODE END USART2_IRQn 1 */
 }
 
+/**
+  * @brief This function handles Timer 6 interrupt and DAC underrun interrupts.
+  */
+void TIM6_DAC_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
+
+  /* USER CODE END TIM6_DAC_IRQn 0 */
+  HAL_DAC_IRQHandler(&hdac);
+  /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
+
+  /* USER CODE END TIM6_DAC_IRQn 1 */
+}
+
 /* USER CODE BEGIN 1 */
 
 void saveInCircBuf(uint8_t* buffer, uint8_t** startPckPtr, uint8_t** endPckPtr,
@@ -338,6 +355,16 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
   UNUSED(huart);
 
   dataSent = 1;
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  UNUSED(htim);
+
+  if(htim->Instance == TIM2){
+      timeElapsed = 1;
+  }
+
 }
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

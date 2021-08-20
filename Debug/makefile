@@ -62,7 +62,7 @@ main-build: vispmControl.elf secondary-outputs
 
 # Tool invocations
 vispmControl.elf: $(OBJS) $(USER_OBJS) C:\Users\mames\Documents\progetti_stm32\vispmControl\STM32F303VCTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "vispmControl.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\mames\Documents\progetti_stm32\vispmControl\STM32F303VCTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="vispmControl.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
+	arm-none-eabi-gcc -o "vispmControl.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\mames\Documents\progetti_stm32\vispmControl\STM32F303VCTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="vispmControl.map" -Wl,--gc-sections -static -L"C:\Users\mames\Documents\progetti_stm32\vispmControl\Drivers\CMSIS\Lib\GCC" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
