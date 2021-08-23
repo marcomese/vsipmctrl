@@ -298,7 +298,7 @@ int main(void)
 
           pidErrKat = katodeVoltage-katodeReadVal;
           pidOutKat = arm_pid_f32(&katPID, pidErrKat);
-          biasDACVal = pidOutKat*4095/2.9;
+          katDACVal = pidOutKat*4095/2.9;
 
           HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_2, DAC_ALIGN_12B_R, katDACVal);
 
