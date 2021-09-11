@@ -24,7 +24,7 @@ void voltageCMD(void);
 
 void maxCMD(void);
 
-void sendAddrCMD(void);
+void sendToAddrCMD(void);
 
 typedef void (*commands_t)(void);
 

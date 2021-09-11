@@ -13,14 +13,14 @@
 #define VREFINT 2
 #define VREFINTCAL_ADDR 0x1FFFF7BA
 
-#define ADDR "04.21.00"
+#define ADDR "04.21.01"
 #define ADDRLEN sizeof(ADDR)-1
 
 #define MAXPACKETSIZE 40
 #define PACKETSINBUF 10
 #define BUFSIZE PACKETSINBUF*MAXPACKETSIZE
 
-#define UARTRESSIZE 15
+#define UARTRESSIZE 30
 #define CMDARGSIZE 15
 #define UART1 0xFF
 #define UART2 0xFE
@@ -39,11 +39,15 @@
 #define IDNSECT "*IDN?"
 #define BIASSECT "BIAS"
 #define KATODESECT "KATODE"
+#define RESP "R:"
+#define ERR "E:"
 
 #define NODELEN (sizeof(NODESECT)-1)
 #define IDNLEN (sizeof(IDNSECT)-1)
 #define BIASLEN (sizeof(BIASSECT)-1)
 #define KATODELEN (sizeof(KATODESECT)-1)
+#define RESPLEN (sizeof(RESP)-1)
+#define ERRLEN (sizeof(ERR)-1)
 
 #define VOLTCMDSTR "VOLT"
 #define MAXCMDSTR "MAX"

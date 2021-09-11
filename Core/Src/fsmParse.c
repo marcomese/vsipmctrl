@@ -66,6 +66,8 @@ void parseNode(fsm_t* s){
         FSM_STATE(s) = parseAddr;
     else if(strncmp((const char*)pack,IDNSECT,IDNLEN) == 0)
         FSM_STATE(s) = parseCmdIDN;
+    else if(strncmp((const char*)pack,RESP,RESPLEN) == 0)
+        FSM_STATE(s) = parseSendToAddr;
     else
         FSM_STATE(s) = parseErrNode;
 }
