@@ -29,6 +29,9 @@ enum outputNames{command,
                  maxVoltagePointer,
                  vSection};
 
+// Costanti di supporto
+const char uartDirVals[2] = {UART1,UART2};
+
 // Funzioni di supporto
 state_function_t selectCmd(const char* arg){
     char* argEnd = strpbrk(arg," ?");
@@ -117,8 +120,6 @@ void parseCmdIDN(fsm_t* s){
 
     uint8_t* pack = FSM_IN(s,currPacket,uint8_t*);
 
-    const char uartDirVals[2] = {UART1,UART2};
-
     char* idnEnd = strpbrk((const char*)pack,uartDirVals);
 
     FSM_OUT(s,uartDir,uint8_t) = *idnEnd;
@@ -159,15 +160,10 @@ void parseSendToAddr(fsm_t* s){
 
     uint8_t* pack = FSM_IN(s,currPacket,uint8_t*);
 
-    const char uartDirVals[2] = {UART1,UART2};
     char* pckEnd = strpbrk((const char*)pack,uartDirVals);
 
-//    if(strncmp((const char*)pack,RESP,RESPLEN) == 0 ||
-//       strncmp((const char*)pack,ERR,ERRLEN) == 0)
-//        FSM_OUT(s,uartDir,uint8_t) = *pckEnd;
-//    else
-        FSM_OUT(s,uartDir,uint8_t) = (*pckEnd == UART1) ?
-                                      UART2 : UART1;
+    FSM_OUT(s,uartDir,uint8_t) = (*pckEnd == UART1) ?
+                                  UART2 : UART1;
 
     FSM_STATE(s) = parseNextPacket;
 }
@@ -197,8 +193,6 @@ void parseVoltageCmd(fsm_t* s){
 
     const char* voltArg = (const char*)pack+NODELEN+ADDRLEN+sectLen+VOLTLEN+2;
 
-    const char uartDirVals[2] = {UART1,UART2};
-
     char* argEnd = strpbrk(voltArg,uartDirVals);
 
     FSM_OUT(s,uartDir,uint8_t) = *argEnd;
@@ -227,8 +221,6 @@ void parseMaxCmd(fsm_t* s){
     uint8_t* pack = FSM_IN(s,currPacket,uint8_t*);
 
     const char* voltArg = (const char*)pack+NODELEN+ADDRLEN+sectLen+MAXLEN+2;
-
-    const char uartDirVals[2] = {UART1,UART2};
 
     char* argEnd = strpbrk(voltArg,uartDirVals);
 
