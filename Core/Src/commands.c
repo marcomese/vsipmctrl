@@ -122,17 +122,23 @@ void maxCMD(void){
 }
 
 void sendToAddrCMD(void){
-    uint8_t uDir;
+//    uint8_t uDir;
+//    const char uartDirVals[2] = {UART1,UART2};
+//    char* pckEnd = strpbrk((const char*)currPacket,uartDirVals);
+//
+//    if(strncmp((const char*)currPacket,RESP,RESPLEN) == 0 ||
+//       strncmp((const char*)currPacket,ERR,ERRLEN) == 0)
+//        uDir = *pckEnd;
+//    else
+//        uDir = (*pckEnd == UART1) ?
+//                UART2 : UART1;
+//
     const char uartDirVals[2] = {UART1,UART2};
     char* pckEnd = strpbrk((const char*)currPacket,uartDirVals);
-
-    uDir = (*pckEnd == UART1) ?
-            UART2 : UART1;
-
     putInSendBuf(sendBuffer, &sendPointer,
                  currPacket, (uint8_t*)pckEnd-currPacket,
                  packetToSend, &sendBufIndex, &pckToSendNum,
-                 uDir);
+                 uartDir);
 }
 
 void sendToUartCMD(void){

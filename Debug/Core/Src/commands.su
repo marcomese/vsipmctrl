@@ -3,6 +3,6 @@ commands.c:59:6:noop	4	static
 commands.c:61:6:idnCMD	56	static
 commands.c:74:6:voltageCMD	72	static
 commands.c:100:6:maxCMD	72	static
-commands.c:124:6:sendToAddrCMD	40	static
-commands.c:145:6:sendToUartCMD	16	static
-commands.c:166:6:execute	16	static
+commands.c:124:6:sendToAddrCMD	32	static
+commands.c:144:6:sendToUartCMD	16	static
+commands.c:165:6:execute	16	static

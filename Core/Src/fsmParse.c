@@ -68,6 +68,8 @@ void parseNode(fsm_t* s){
         FSM_STATE(s) = parseCmdIDN;
     else if(strncmp((const char*)pack,RESP,RESPLEN) == 0)
         FSM_STATE(s) = parseSendToAddr;
+    else if(strncmp((const char*)pack,ERR,ERRLEN) == 0)
+        FSM_STATE(s) = parseSendToAddr;
     else
         FSM_STATE(s) = parseErrNode;
 }
@@ -154,6 +156,18 @@ void parseSendToAddr(fsm_t* s){
     FSM_OUT(s,command,uint8_t) = SENDTOADDRCMD;
     FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 1;
+
+    uint8_t* pack = FSM_IN(s,currPacket,uint8_t*);
+
+    const char uartDirVals[2] = {UART1,UART2};
+    char* pckEnd = strpbrk((const char*)pack,uartDirVals);
+
+//    if(strncmp((const char*)pack,RESP,RESPLEN) == 0 ||
+//       strncmp((const char*)pack,ERR,ERRLEN) == 0)
+//        FSM_OUT(s,uartDir,uint8_t) = *pckEnd;
+//    else
+        FSM_OUT(s,uartDir,uint8_t) = (*pckEnd == UART1) ?
+                                      UART2 : UART1;
 
     FSM_STATE(s) = parseNextPacket;
 }
