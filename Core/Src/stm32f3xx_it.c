@@ -55,9 +55,10 @@ extern uint8_t* endPacketPointer1;
 extern uint8_t* dataPointer2;
 extern uint8_t* endPacketPointer2;
 
-extern uint32_t ADCBuf[3];
+extern uint32_t ADCBuf[4];
 
 extern float biasReadVal;
+extern float biasHVReadVal;
 extern float katodeReadVal;
 
 float vref;
@@ -361,6 +362,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
       vref = ADCBuf[VREFINT];
 
       biasReadVal = *vrefCal*3.3*ADCBuf[BIAS]/(4095*vref);
+      biasHVReadVal = *vrefCal*3.3*ADCBuf[BIASHV]/(4095*vref);
       katodeReadVal = *vrefCal*3.3*ADCBuf[KATODE]/(4095*vref);
   }
 }

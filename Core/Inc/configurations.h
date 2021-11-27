@@ -9,11 +9,12 @@
 #define INC_CONFIGURATIONS_H_
 
 #define BIAS 0
+#define BIASHV 3
 #define KATODE 1
 #define VREFINT 2
 #define VREFINTCAL_ADDR 0x1FFFF7BA
 
-#define ADDR "04.21.01"
+#define ADDR "04.21.00"
 #define ADDRLEN sizeof(ADDR)-1
 
 #define MAXPACKETSIZE 40
@@ -34,6 +35,7 @@
 #define MAXCMD 3
 #define SENDTOADDRCMD 4
 #define SENDTOUART 5
+#define HVCMD 6
 
 #define NODESECT "NODE:"
 #define IDNSECT "*IDN?"
@@ -51,9 +53,11 @@
 
 #define VOLTCMDSTR "VOLT"
 #define MAXCMDSTR "MAX"
+#define HVCMDSTR "HV"
 
 #define VOLTLEN (sizeof(VOLTCMDSTR)-1)
 #define MAXLEN (sizeof(MAXCMDSTR)-1)
+#define HVLEN (sizeof(HVCMDSTR)-1)
 
 #define PIDKp 0.6
 #define PIDKi 0.1

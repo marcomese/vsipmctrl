@@ -28,6 +28,9 @@ extern char argument[CMDARGSIZE];
 extern float* outVoltagePointer;
 extern float* readVoltagePointer;
 extern float* maxVoltagePointer;
+extern float biasHVReadVal;
+
+extern const char uartDirVals[2];
 
 void putInSendBuf(uint8_t* dstBuf, uint8_t** dstBufPtr,
                   uint8_t* srcPtr, uint8_t srcLen,
@@ -118,7 +121,24 @@ void maxCMD(void){
                  (uint8_t*)uartResp, respLen,
                  packetToSend, &sendBufIndex, &pckToSendNum,
                  uartDir);
+}
 
+void hvCMD(void){
+    uint8_t uartResp[UARTRESSIZE];
+    uint8_t respLen = 0;
+
+    memset(uartResp,0,UARTRESSIZE);
+
+    if(argument[0] == '?')
+        snprintf((char*)uartResp,UARTRESSIZE,"%s%.2f\n",RESP,biasHVReadVal);
+    else
+        snprintf((char*)uartResp,UARTRESSIZE,"%sNaN\n",ERR);
+
+    respLen = strlen((const char*)uartResp);
+    putInSendBuf(sendBuffer, &sendPointer,
+                 (uint8_t*)uartResp, respLen,
+                 packetToSend, &sendBufIndex, &pckToSendNum,
+                 uartDir);
 }
 
 void sendToAddrCMD(void){
@@ -147,7 +167,8 @@ const commands_t commandExecute[] = {(commands_t)noop,
                                      (commands_t)voltageCMD,
                                      (commands_t)maxCMD,
                                      (commands_t)sendToAddrCMD,
-                                     (commands_t)sendToUartCMD};
+                                     (commands_t)sendToUartCMD,
+                                     (commands_t)hvCMD};
 
 
 void execute(uint8_t cmd){

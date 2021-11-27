@@ -1,8 +1,9 @@
-commands.c:32:6:putInSendBuf	32	static
-commands.c:59:6:noop	4	static
-commands.c:61:6:idnCMD	56	static
-commands.c:74:6:voltageCMD	72	static
-commands.c:100:6:maxCMD	72	static
-commands.c:124:6:sendToAddrCMD	32	static
-commands.c:144:6:sendToUartCMD	16	static
-commands.c:165:6:execute	16	static
+commands.c:35:6:putInSendBuf	32	static
+commands.c:62:6:noop	4	static
+commands.c:64:6:idnCMD	56	static
+commands.c:77:6:voltageCMD	72	static
+commands.c:103:6:maxCMD	72	static
+commands.c:126:6:hvCMD	56	static
+commands.c:144:6:sendToAddrCMD	32	static
+commands.c:152:6:sendToUartCMD	16	static
+commands.c:174:6:execute	16	static

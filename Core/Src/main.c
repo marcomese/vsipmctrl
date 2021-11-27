@@ -54,8 +54,9 @@ UART_HandleTypeDef huart2;
 
 uint8_t vSection = BIAS;
 
-uint32_t ADCBuf[3];
+uint32_t ADCBuf[4];
 float biasReadVal;
+float biasHVReadVal;
 float katodeReadVal;
 
 /*
@@ -227,9 +228,10 @@ int main(void)
     memset(packetToProcess,0,BUFSIZE);
     memset(packetToSend,0,BUFSIZE);
 
-    ADCBuf[0] = 0;
-    ADCBuf[1] = 0;
-    ADCBuf[2] = 0;
+    ADCBuf[BIAS] = 0;
+    ADCBuf[KATODE] = 0;
+    ADCBuf[VREFINT] = 0;
+    ADCBuf[BIASHV] = 0;
 
     currPacket = packetToProcess[0];
 
@@ -273,7 +275,7 @@ int main(void)
     HAL_DAC_Start(&hdac, DAC1_CHANNEL_1);
     HAL_DAC_Start(&hdac, DAC1_CHANNEL_2);
 
-    HAL_ADC_Start_DMA(&hadc1, ADCBuf, 3);
+    HAL_ADC_Start_DMA(&hadc1, ADCBuf, 4);
 
     HAL_TIM_Base_Start_IT(&htim2);
 
@@ -385,7 +387,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc1.Init.NbrOfConversion = 3;
+  hadc1.Init.NbrOfConversion = 4;
   hadc1.Init.DMAContinuousRequests = ENABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   hadc1.Init.LowPowerAutoWait = DISABLE;
@@ -425,6 +427,14 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_VREFINT;
   sConfig.Rank = ADC_REGULAR_RANK_3;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_3;
+  sConfig.Rank = ADC_REGULAR_RANK_4;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -623,6 +633,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOE_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(debugOut_GPIO_Port, debugOut_Pin, GPIO_PIN_RESET);

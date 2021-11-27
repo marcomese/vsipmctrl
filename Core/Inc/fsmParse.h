@@ -25,6 +25,7 @@ void parseCmdKAT(fsm_t* s);
 
 void parseVoltageCmd(fsm_t* s);
 void parseMaxCmd(fsm_t* s);
+void parseBiasHVCmd(fsm_t* s);
 
 void parseExecute(fsm_t* s);
 void parseSendToAddr(fsm_t* s);

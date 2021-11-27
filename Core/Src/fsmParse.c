@@ -42,6 +42,8 @@ state_function_t selectCmd(const char* arg){
         return parseVoltageCmd;
     else if(strncmp(arg,MAXCMDSTR,argL) == 0)
         return parseMaxCmd;
+    else if(strncmp(arg,HVCMDSTR,argL) == 0)
+        return parseBiasHVCmd;
 
     return parseErrCmd;
 }
@@ -224,9 +226,37 @@ void parseMaxCmd(fsm_t* s){
 
     char* argEnd = strpbrk(voltArg,uartDirVals);
 
+    FSM_OUT(s,uartDir,uint8_t) = *argEnd;
+
     size_t argL = (argEnd > 0) ? argEnd-voltArg : sizeof(argEnd)-1;
 
     strncpy(argOut,voltArg,argL);
+
+    FSM_STATE(s) = parseNextPacket;
+}
+
+void parseBiasHVCmd(fsm_t* s){
+    FSM_OUT(s,command,uint8_t) = HVCMD;
+    FSM_OUT(s,busy,uint8_t) = 1;
+    FSM_OUT(s,packetProcessed,uint8_t) = 1;
+
+    uint8_t vSect = FSM_OUT(s,vSection,uint8_t);
+    uint8_t sectLen = BIASLEN*(1-vSect)+KATODELEN*vSect;
+
+    char* argOut = FSM_OUTP(s,argument);
+    memset(argOut,0,CMDARGSIZE);
+
+    uint8_t* pack = FSM_IN(s,currPacket,uint8_t*);
+
+    const char* hvArg = (const char*)pack+NODELEN+ADDRLEN+sectLen+HVLEN+2;
+
+    char* argEnd = strpbrk(hvArg,uartDirVals);
+
+    FSM_OUT(s,uartDir,uint8_t) = *argEnd;
+
+    size_t argL = (argEnd > 0) ? argEnd-hvArg : sizeof(argEnd)-1;
+
+    strncpy(argOut,hvArg,argL);
 
     FSM_STATE(s) = parseNextPacket;
 }
