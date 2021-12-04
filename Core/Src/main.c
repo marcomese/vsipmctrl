@@ -177,13 +177,11 @@ static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
-
 void setDACbyPID(arm_pid_instance_f32* pid,
                  DAC_HandleTypeDef* dac,
                  uint32_t channel,
                  float setValue,
                  float readValue);
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -274,6 +272,8 @@ int main(void)
 
     HAL_DAC_Start(&hdac, DAC1_CHANNEL_1);
     HAL_DAC_Start(&hdac, DAC1_CHANNEL_2);
+
+    HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
 
     HAL_ADC_Start_DMA(&hadc1, ADCBuf, 4);
 
@@ -472,7 +472,7 @@ static void MX_DAC_Init(void)
   /** DAC channel OUT1 config
   */
   sConfig.DAC_Trigger = DAC_TRIGGER_NONE;
-  sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
+  sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_DISABLE;
   if (HAL_DAC_ConfigChannel(&hdac, &sConfig, DAC_CHANNEL_1) != HAL_OK)
   {
     Error_Handler();
@@ -655,14 +655,13 @@ void setDACbyPID(arm_pid_instance_f32* pid,
                  float readValue){
 
     float pidOut = arm_pid_f32(pid, setValue-readValue);
-    float dacVal = 0.0;
 
-    if(pidOut > 3.3)
-        pidOut = 3.3;
+    if(pidOut > 3.0)
+        pidOut = 3.0;
     if(pidOut < 0.0)
         pidOut = 0.0;
 
-    dacVal = pidOut*4095/3.3;
+    float dacVal = pidOut*4095/3.0;
 
     HAL_DAC_SetValue(dac, channel, DAC_ALIGN_12B_R, dacVal);
 }

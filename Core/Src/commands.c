@@ -10,8 +10,6 @@
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;
 
-extern DAC_HandleTypeDef hdac;
-
 extern uint8_t* currPacket;
 
 extern uint8_t uartDir;
