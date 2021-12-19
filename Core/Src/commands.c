@@ -23,6 +23,7 @@ extern uint8_t pckToSendIndex;
 
 extern char argument[CMDARGSIZE];
 
+extern float vref;
 extern float* outVoltagePointer;
 extern float* readVoltagePointer;
 extern float* maxVoltagePointer;
@@ -82,8 +83,8 @@ void voltageCMD(void){
 
     if(err != argument)
         if(outVal <= *maxVoltagePointer){
-            *outVoltagePointer = outVal;
-            snprintf((char*)uartResp,UARTRESSIZE,"%s%.2f\n",RESP,outVal);
+            *outVoltagePointer = (outVal <= vref) ? outVal : vref;
+            snprintf((char*)uartResp,UARTRESSIZE,"%s%.2f\n",RESP,*outVoltagePointer);
         }else
             snprintf((char*)uartResp,UARTRESSIZE,"%sVmax=%.2f\n",ERR,*maxVoltagePointer);
     else if(argument[0] == '?')

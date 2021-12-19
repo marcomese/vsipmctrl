@@ -14,7 +14,7 @@
 #define VREFINT 2
 #define VREFINTCAL_ADDR 0x1FFFF7BA
 
-#define ADDR "04.21.01"
+#define ADDR "04.21.00"
 #define ADDRLEN sizeof(ADDR)-1
 
 #define MAXPACKETSIZE 40
@@ -59,7 +59,7 @@
 #define MAXLEN (sizeof(MAXCMDSTR)-1)
 #define HVLEN (sizeof(HVCMDSTR)-1)
 
-#define PIDKp 0.6
+#define PIDKp 0.3
 #define PIDKi 0.1
 #define PIDkd 0.1
 

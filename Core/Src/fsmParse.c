@@ -19,7 +19,6 @@ enum inputNames{currPacket,
                 katodeReadVal};
 
 enum outputNames{command,
-                 busy,
                  argument,
                  packetsNum,
                  packetProcessed,
@@ -51,7 +50,6 @@ state_function_t selectCmd(const char* arg){
 // Macchina a stati
 void parseIDLE(fsm_t* s){
     FSM_OUT(s,command,uint8_t) = NOOP;
-    FSM_OUT(s,busy,uint8_t) = 0;
     FSM_OUT(s,packetProcessed,uint8_t) = 0;
 
     if(FSM_IN(s,process,uint8_t))
@@ -62,7 +60,6 @@ void parseIDLE(fsm_t* s){
 
 void parseNode(fsm_t* s){
     FSM_OUT(s,command,uint8_t) = NOOP;
-    FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 0;
 
     uint8_t* pack = FSM_IN(s,currPacket,uint8_t*);
@@ -81,7 +78,6 @@ void parseNode(fsm_t* s){
 
 void parseAddr(fsm_t* s){
     FSM_OUT(s,command,uint8_t) = NOOP;
-    FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 0;
 
     uint8_t* pack = FSM_IN(s,currPacket,uint8_t*);
@@ -96,7 +92,6 @@ void parseAddr(fsm_t* s){
 
 void parseSection(fsm_t* s){
     FSM_OUT(s,command,uint8_t) = NOOP;
-    FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 0;
 
     uint8_t* pack = FSM_IN(s,currPacket,uint8_t*);
@@ -117,7 +112,6 @@ void parseSection(fsm_t* s){
 
 void parseCmdIDN(fsm_t* s){
     FSM_OUT(s,command,uint8_t) = IDNCMD;
-    FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 1;
 
     uint8_t* pack = FSM_IN(s,currPacket,uint8_t*);
@@ -131,7 +125,6 @@ void parseCmdIDN(fsm_t* s){
 
 void parseCmdBIAS(fsm_t* s){
     FSM_OUT(s,command,uint8_t) = NOOP;
-    FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 0;
     FSM_OUT(s,vSection,uint8_t) = BIAS;
 
@@ -144,7 +137,6 @@ void parseCmdBIAS(fsm_t* s){
 
 void parseCmdKAT(fsm_t* s){
     FSM_OUT(s,command,uint8_t) = NOOP;
-    FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 0;
     FSM_OUT(s,vSection,uint8_t) = KATODE;
 
@@ -157,7 +149,6 @@ void parseCmdKAT(fsm_t* s){
 
 void parseSendToAddr(fsm_t* s){
     FSM_OUT(s,command,uint8_t) = SENDTOADDRCMD;
-    FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 1;
 
     uint8_t* pack = FSM_IN(s,currPacket,uint8_t*);
@@ -172,7 +163,6 @@ void parseSendToAddr(fsm_t* s){
 
 void parseVoltageCmd(fsm_t* s){
     FSM_OUT(s,command,uint8_t) = VOLTCMD;
-    FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 1;
 
     uint8_t vSect = FSM_OUT(s,vSection,uint8_t);
@@ -208,7 +198,6 @@ void parseVoltageCmd(fsm_t* s){
 
 void parseMaxCmd(fsm_t* s){
     FSM_OUT(s,command,uint8_t) = MAXCMD;
-    FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 1;
 
     uint8_t vSect = FSM_OUT(s,vSection,uint8_t);
@@ -237,7 +226,6 @@ void parseMaxCmd(fsm_t* s){
 
 void parseBiasHVCmd(fsm_t* s){
     FSM_OUT(s,command,uint8_t) = HVCMD;
-    FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 1;
 
     uint8_t vSect = FSM_OUT(s,vSection,uint8_t);
@@ -263,7 +251,6 @@ void parseBiasHVCmd(fsm_t* s){
 
 void parseErrNode(fsm_t* s){
     FSM_OUT(s,command,uint8_t) = NOOP;
-    FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 1;
 
     FSM_STATE(s) = parseNextPacket;
@@ -271,7 +258,6 @@ void parseErrNode(fsm_t* s){
 
 void parseErrSection(fsm_t* s){
     FSM_OUT(s,command,uint8_t) = NOOP;
-    FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 1;
 
     FSM_STATE(s) = parseNextPacket;
@@ -279,7 +265,6 @@ void parseErrSection(fsm_t* s){
 
 void parseErrCmd(fsm_t* s){
     FSM_OUT(s,command,uint8_t) = NOOP;
-    FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 1;
 
     FSM_STATE(s) = parseNextPacket;
@@ -287,7 +272,6 @@ void parseErrCmd(fsm_t* s){
 
 void parseNextPacket(fsm_t* s){
     FSM_OUT(s,command,uint8_t) = NOOP;
-    FSM_OUT(s,busy,uint8_t) = 1;
     FSM_OUT(s,packetProcessed,uint8_t) = 1;
     FSM_OUT(s,packetsNum,uint8_t) = FSM_OUT(s,packetsNum,uint8_t)-1;
 

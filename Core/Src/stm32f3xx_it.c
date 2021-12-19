@@ -61,7 +61,7 @@ extern float biasReadVal;
 extern float biasHVReadVal;
 extern float katodeReadVal;
 
-float vref;
+extern float vref;
 uint16_t* vrefCal = (uint16_t*)VREFINTCAL_ADDR;
 
 extern uint8_t dataSent;
@@ -359,11 +359,11 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
   UNUSED(hadc);
 
   if(hadc->Instance == ADC1){
-      vref = ADCBuf[VREFINT];
+      vref = *vrefCal*3.3/ADCBuf[VREFINT];
 
-      biasReadVal = *vrefCal*3.3*ADCBuf[BIAS]/(4095*vref);
-      biasHVReadVal = *vrefCal*3.3*ADCBuf[BIASHV]/(4095*vref);
-      katodeReadVal = *vrefCal*3.3*ADCBuf[KATODE]/(4095*vref);
+      biasReadVal = vref*ADCBuf[BIAS]/4095;
+      biasHVReadVal = vref*ADCBuf[BIASHV]/4095;
+      katodeReadVal = vref*ADCBuf[KATODE]/4095;
   }
 }
 

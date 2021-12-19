@@ -54,7 +54,12 @@ UART_HandleTypeDef huart2;
 
 uint8_t vSection = BIAS;
 
+/*
+ * Variabili per la conversione ADC
+ */
+
 uint32_t ADCBuf[4];
+float vref = 3.0;
 float biasReadVal;
 float biasHVReadVal;
 float katodeReadVal;
@@ -100,7 +105,6 @@ uint8_t uartDir = 0;
  */
 uint8_t command = 0;
 uint8_t sendCommand = 0;
-uint8_t busy = 0;
 uint8_t packetProcessed = 0;
 char argument[CMDARGSIZE];
 float* outVoltagePointer = NULL;
@@ -117,8 +121,8 @@ uint8_t sendBufIndex = 0;
 uint8_t pckToSendIndex = 0;
 uint8_t pckToSendLen = 0;
 
-uint8_t* currPacket;
-uint8_t* currSendPck;
+uint8_t* currPacket = NULL;
+uint8_t* currSendPck = NULL;
 
 uint8_t dataSent = 0;
 
@@ -128,8 +132,6 @@ float pidErrBias = 0.0;
 float pidOutBias = 0.0;
 float pidErrKat = 0.0;
 float pidOutKat = 0.0;
-float biasDACVal = 0.0;
-float katDACVal = 0.0;
 
 void* parseFsmInputs[] = {&currPacket,
                           &process,
@@ -141,7 +143,6 @@ void* parseFsmInputs[] = {&currPacket,
                           &katodeReadVal};
 
 void* parseFsmOutputs[] = {&command,
-                           &busy,
                            &argument,
                            &packetsNum,
                            &packetProcessed,
@@ -654,16 +655,19 @@ void setDACbyPID(arm_pid_instance_f32* pid,
                  float setValue,
                  float readValue){
 
-    float pidOut = arm_pid_f32(pid, setValue-readValue);
+    float dacRef = vref;
 
-    if(pidOut > 3.0)
-        pidOut = 3.0;
+    float setDVal = (setValue <= dacRef) ? setValue*4095/dacRef : 4095.0;
+    float readDVal = readValue*4095/dacRef;
+
+    float pidOut = arm_pid_f32(pid, setDVal-readDVal);
+
+    if(pidOut > 4095.0)
+        pidOut = 4095.0;
     if(pidOut < 0.0)
         pidOut = 0.0;
 
-    float dacVal = pidOut*4095/3.0;
-
-    HAL_DAC_SetValue(dac, channel, DAC_ALIGN_12B_R, dacVal);
+    HAL_DAC_SetValue(dac, channel, DAC_ALIGN_12B_R, (uint32_t)pidOut);
 }
 /* USER CODE END 4 */
 
